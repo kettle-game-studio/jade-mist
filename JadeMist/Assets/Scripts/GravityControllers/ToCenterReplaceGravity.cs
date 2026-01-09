@@ -8,7 +8,7 @@ public class ToCenterReplaceGravity : MonoBehaviour
     public Vector3 GlobalCenter => transform.TransformPoint(center);
 
 
-    void OnTriggerStay(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent<PlayerController>(out var player))
             player.gravity.UpdateDefaultGravity((Vector3 point) => gravity * (GlobalCenter - point).normalized);
