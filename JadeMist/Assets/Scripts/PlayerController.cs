@@ -9,16 +9,39 @@ public class PlayerController : MonoBehaviour
         public Vector3 vector;
         public float count;
         public Vector3 Value { get; private set; }
+        public Vector3 DefaultVector{get; private set;}
+        public float InterpolationPeriod{get;}
+        public AnimationCurve GravityCurve{get;}
 
-        public GravitySettings(Vector3 defaultVector)
+        Vector3 lastDefaultVector;
+        float lastUpdateTime;
+        public Vector3 CurrentDefaultGravity => Vector3.Lerp(
+            lastDefaultVector, DefaultVector,
+            GravityCurve.Evaluate((Time.time - lastUpdateTime) / InterpolationPeriod)
+        );
+
+        public GravitySettings(Vector3 defaultVector, float interpolationPeriod, AnimationCurve gravityCurve)
         {
+            GravityCurve = gravityCurve;
+            InterpolationPeriod = interpolationPeriod;
+            lastDefaultVector = defaultVector;
+            DefaultVector = defaultVector;
+            Value = defaultVector;
+            lastUpdateTime = Time.time;
             count = 0;
-            Reset(defaultVector);
+            vector = Vector3.zero;
         }
 
-        public void Reset(Vector3 defaultVector)
+        public void UpdateDefaultGravity(Vector3 newGravity)
         {
-            Value = count > 1 ? vector / count : (vector + defaultVector * (1 - count));
+            lastDefaultVector = CurrentDefaultGravity;
+            DefaultVector = newGravity;
+            lastUpdateTime = Time.time;
+        }
+
+        public void Reset()
+        {
+            Value = count > 1 ? vector / count : (vector + CurrentDefaultGravity * (1 - count));
             vector = Vector3.zero;
             count = 0;
         }
@@ -34,6 +57,8 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 50;
     public float jumpHeight = 2;
     public float jumpAngle = 45;
+    public float updateGravityPeriod = 1;
+    public AnimationCurve gravityCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
     Rigidbody rigidBody;
     InputAction lookAction;
@@ -54,7 +79,7 @@ public class PlayerController : MonoBehaviour
         lookAction = InputSystem.actions.FindAction("Look");
         moveAction = InputSystem.actions.FindAction("Move");
         jumpAction = InputSystem.actions.FindAction("Jump");
-        gravity = new GravitySettings(baseGravity);
+        gravity = new GravitySettings(baseGravity, updateGravityPeriod, gravityCurve);
     }
 
     void Update()
@@ -68,7 +93,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        gravity.Reset(baseGravity);
+        gravity.Reset();
         transform.rotation = ToGravityRotation() * transform.rotation;
         Vector2 moveValue = moveAction.ReadValue<Vector2>() * moveSpeed;
         float downSpeed = Vector3.Dot(rigidBody.linearVelocity, DownVector);
