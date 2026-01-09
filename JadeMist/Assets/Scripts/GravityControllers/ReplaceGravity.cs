@@ -8,7 +8,7 @@ public class ReplaceGravity : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent<PlayerController>(out var player))
-            player.gravity.UpdateDefaultGravity(GlobalGravity);
+            player.gravity.UpdateDefaultGravity((Vector3) => GlobalGravity);
     }
 
     void OnDrawGizmos()
