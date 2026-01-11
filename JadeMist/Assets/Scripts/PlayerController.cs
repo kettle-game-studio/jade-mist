@@ -10,9 +10,9 @@ public class PlayerController : MonoBehaviour
         public Vector3 vector;
         public float count;
         public Vector3 Value { get; private set; }
-        public Func<Vector3, Vector3> DefaultVector{get; private set;}
-        public float InterpolationPeriod{get;}
-        public AnimationCurve GravityCurve{get;}
+        public Func<Vector3, Vector3> DefaultVector { get; private set; }
+        public float InterpolationPeriod { get; }
+        public AnimationCurve GravityCurve { get; }
 
         Func<Vector3, Vector3> lastDefaultVector;
         float lastUpdateTime;
@@ -33,9 +33,9 @@ public class PlayerController : MonoBehaviour
             vector = Vector3.zero;
         }
 
-        public void UpdateDefaultGravity(Func<Vector3, Vector3> newGravityField)
+        public void UpdateDefaultGravity(Func<Vector3, Vector3> newGravityField, bool force = false)
         {
-            lastDefaultVector = (Vector3) => Value;
+            lastDefaultVector = force ? newGravityField : (Vector3) => Value;
             DefaultVector = newGravityField;
             lastUpdateTime = Time.time;
         }
@@ -48,6 +48,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public Transform respawnPoint;
+    public float deathDistance = 200;
     public Transform playerCamera;
     public Vector3 baseGravity = Vector3.down;
     public GravitySettings gravity;
@@ -85,6 +87,10 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        var from = respawnPoint == null ? Vector3.zero : respawnPoint.transform.position;
+        if (Vector3.Distance(from, transform.position) > deathDistance)
+            Die();
+
         Vector2 lookValue = lookAction.ReadValue<Vector2>();
         lookValue = lookValue * mouseSpeed;
         verticalLookAngle = Mathf.Clamp(verticalLookAngle + lookValue.y, lookVerticalLimitFrom, lookVerticalLimitTo);
@@ -99,7 +105,8 @@ public class PlayerController : MonoBehaviour
         Vector2 moveValue = moveAction.ReadValue<Vector2>() * moveSpeed;
         float downSpeed = Vector3.Dot(rigidBody.linearVelocity, DownVector);
 
-        if (jumpAction.IsPressed() && canJump){
+        if (jumpAction.IsPressed() && canJump)
+        {
             downSpeed = -JumpVelocity;
             Debug.Log(JumpVelocity);
         }
@@ -142,5 +149,22 @@ public class PlayerController : MonoBehaviour
 
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(transform.position, transform.position + ForwardVector);
+    }
+
+    public void SetRespawnPoint(Transform newRespawnpoint)
+    {
+        respawnPoint = newRespawnpoint;
+    }
+
+    void Die()
+    {
+        if (respawnPoint != null)
+            transform.SetPositionAndRotation(respawnPoint.transform.position, respawnPoint.transform.rotation);
+        else
+            transform.position = Vector3.zero;
+
+
+        rigidBody.linearVelocity = Vector3.zero;
+        gravity.UpdateDefaultGravity(_ => baseGravity, true);
     }
 }
