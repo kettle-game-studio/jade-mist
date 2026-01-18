@@ -16,10 +16,13 @@ public class PlayerController : MonoBehaviour
 
         Func<Vector3, Vector3> lastDefaultVector;
         float lastUpdateTime;
-        public Vector3 CurrentDefaultGravity(Vector3 point) => Vector3.Lerp(
-            lastDefaultVector(point), DefaultVector(point),
-            GravityCurve.Evaluate((Time.time - lastUpdateTime) / InterpolationPeriod)
-        );
+        public Vector3 CurrentDefaultGravity(Vector3 point){
+            float k = GravityCurve.Evaluate((Time.time - lastUpdateTime) / InterpolationPeriod);
+            Vector3 a = lastDefaultVector(point);
+            Vector3 b = DefaultVector(point);
+            Vector3 result = a * (1 - k) + b * k;
+            return result;
+        }
 
         public GravitySettings(Func<Vector3, Vector3> defaultVectorField, float interpolationPeriod, AnimationCurve gravityCurve)
         {
@@ -35,7 +38,10 @@ public class PlayerController : MonoBehaviour
 
         public void UpdateDefaultGravity(Func<Vector3, Vector3> newGravityField, bool force = false)
         {
-            lastDefaultVector = force ? newGravityField : (Vector3) => Value;
+            if (DefaultVector == newGravityField)
+                return;
+            Vector3 valueCopy = Value;
+            lastDefaultVector = force ? newGravityField : (Vector3) => valueCopy;
             DefaultVector = newGravityField;
             lastUpdateTime = Time.time;
         }
@@ -47,6 +53,7 @@ public class PlayerController : MonoBehaviour
             count = 0;
         }
     }
+    public InputActionAsset actions;
 
     public Transform respawnPoint;
     public float deathDistance = 200;
@@ -62,6 +69,14 @@ public class PlayerController : MonoBehaviour
     public float jumpAngle = 45;
     public float updateGravityPeriod = 1;
     public AnimationCurve gravityCurve = AnimationCurve.Linear(0, 0, 1, 1);
+    [Range(0, 1)]
+    public float flyInertia = 0.8f;
+    [Range(0, 1)]
+    public float groundInertia = 0.2f;
+    [Range(0, 1)]
+    public float gravityVectorInterpolationK = 0.9f;
+    public float flyVelocityRotation = -1;
+    public float groundVelocityRotation = 1;
 
     Rigidbody rigidBody;
     InputAction lookAction;
@@ -77,12 +92,16 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        rigidBody = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
-        lookAction = InputSystem.actions.FindAction("Look");
-        moveAction = InputSystem.actions.FindAction("Move");
-        jumpAction = InputSystem.actions.FindAction("Jump");
+        rigidBody = GetComponent<Rigidbody>();
         gravity = new GravitySettings((Vector3) => baseGravity, updateGravityPeriod, gravityCurve);
+        verticalLookAngle = 0;
+
+        InputActionMap playerMap = actions.FindActionMap("Player");
+        playerMap.Enable();
+        lookAction = playerMap.FindAction("Look");
+        moveAction = playerMap.FindAction("Move");
+        jumpAction = playerMap.FindAction("Jump");
     }
 
     void Update()
@@ -101,28 +120,41 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         gravity.Reset(transform.position);
-        transform.rotation = ToGravityRotation() * transform.rotation;
+        transform.rotation = ToGravityRotationWithVelocity() * transform.rotation;
         Vector2 moveValue = moveAction.ReadValue<Vector2>() * moveSpeed;
+        Debug.Log(moveValue);
         float downSpeed = Vector3.Dot(rigidBody.linearVelocity, DownVector);
+        float forwardSpeed = Vector3.Dot(rigidBody.linearVelocity, ForwardVector);
+        float rightSpeed = Vector3.Dot(rigidBody.linearVelocity, RightVector);
+
+        float inertia = canJump ? groundInertia : flyInertia;
+        if (canJump)
 
         if (jumpAction.IsPressed() && canJump)
         {
             downSpeed = -JumpVelocity;
-            Debug.Log(JumpVelocity);
         }
 
         rigidBody.linearVelocity =
             DownVector * downSpeed +
             gravity.Value * Time.deltaTime +
-            ForwardVector * moveValue.y +
-            RightVector * moveValue.x;
+            ForwardVector * Mathf.Lerp(moveValue.y, forwardSpeed, inertia) +
+            RightVector * Mathf.Lerp(moveValue.x, rightSpeed, inertia);
 
         canJump = false;
     }
 
-    Quaternion ToGravityRotation()
+
+    Vector3 lastTarget = Vector3.down;
+    Quaternion ToGravityRotationWithVelocity()
     {
-        Vector3 axis = Vector3.Cross(DownVector, gravity.Value.normalized);
+        Vector3 normalizedGravity = gravity.Value.normalized;
+        Vector3 velocityRotationAxis = Vector3.Cross(rigidBody.linearVelocity, normalizedGravity);
+        float velocityRotation = canJump ? groundVelocityRotation : flyVelocityRotation;
+        Vector3 targetVector = Quaternion.AngleAxis(velocityRotationAxis.magnitude * velocityRotation / moveSpeed, velocityRotationAxis) * normalizedGravity;
+        targetVector = Vector3.Lerp(lastTarget, targetVector, gravityVectorInterpolationK).normalized;
+        lastTarget = targetVector;
+        Vector3 axis = Vector3.Cross(DownVector, targetVector);
         float angle = Mathf.Asin(axis.magnitude);
         return Quaternion.AngleAxis(angle * Mathf.Rad2Deg, axis);
     }
