@@ -122,7 +122,6 @@ public class PlayerController : MonoBehaviour
         gravity.Reset(transform.position);
         transform.rotation = ToGravityRotationWithVelocity() * transform.rotation;
         Vector2 moveValue = moveAction.ReadValue<Vector2>() * moveSpeed;
-        Debug.Log(moveValue);
         float downSpeed = Vector3.Dot(rigidBody.linearVelocity, DownVector);
         float forwardSpeed = Vector3.Dot(rigidBody.linearVelocity, ForwardVector);
         float rightSpeed = Vector3.Dot(rigidBody.linearVelocity, RightVector);
@@ -131,15 +130,15 @@ public class PlayerController : MonoBehaviour
         if (canJump)
 
         if (jumpAction.IsPressed() && canJump)
-        {
             downSpeed = -JumpVelocity;
-        }
 
         rigidBody.linearVelocity =
             DownVector * downSpeed +
-            gravity.Value * Time.deltaTime +
             ForwardVector * Mathf.Lerp(moveValue.y, forwardSpeed, inertia) +
             RightVector * Mathf.Lerp(moveValue.x, rightSpeed, inertia);
+
+        if (!canJump)
+            rigidBody.linearVelocity += gravity.Value * Time.deltaTime;
 
         canJump = false;
     }
