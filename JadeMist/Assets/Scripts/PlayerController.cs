@@ -187,7 +187,7 @@ public class PlayerController : MonoBehaviour
         respawnPoint = newRespawnpoint;
     }
 
-    void Die()
+    public void Die()
     {
         if (respawnPoint != null)
             transform.SetPositionAndRotation(respawnPoint.transform.position, respawnPoint.transform.rotation);
@@ -196,6 +196,7 @@ public class PlayerController : MonoBehaviour
 
 
         rigidBody.linearVelocity = Vector3.zero;
+        lastTarget = baseGravity.normalized;
         gravity.UpdateDefaultGravity(_ => baseGravity, true);
     }
 }
