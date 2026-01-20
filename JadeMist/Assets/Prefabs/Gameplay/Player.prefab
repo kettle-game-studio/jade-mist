@@ -257,10 +257,17 @@ MonoBehaviour:
   mouseSpeed: 0.3
   lookVerticalLimitFrom: -85
   lookVerticalLimitTo: 85
-  moveSpeed: 6
+  updateGravityPeriod: 0.001
   jumpHeight: 1.5
   jumpAngle: 60
-  updateGravityPeriod: 0.001
+  walkSettings:
+    moveSpeed: 4
+    flyVelocityRotation: -2
+    groundVelocityRotation: 0.5
+  runSettings:
+    moveSpeed: 7
+    flyVelocityRotation: -7
+    groundVelocityRotation: 2
   gravityCurve:
     serializedVersion: 2
     m_Curve:
@@ -286,7 +293,5 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   flyInertia: 0.8
-  groundInertia: 0.2
+  groundInertia: 0.6
   gravityVectorInterpolationK: 0.12
-  flyVelocityRotation: -5
-  groundVelocityRotation: 1

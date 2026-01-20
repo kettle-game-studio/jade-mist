@@ -53,6 +53,15 @@ public class PlayerController : MonoBehaviour
             count = 0;
         }
     }
+
+    [Serializable]
+    public class MoveSettings
+    {
+        public float moveSpeed = 6;
+        public float flyVelocityRotation = -5;
+        public float groundVelocityRotation = 1;
+    }
+
     public InputActionAsset actions;
 
     public Transform respawnPoint;
@@ -61,13 +70,17 @@ public class PlayerController : MonoBehaviour
     public Vector3 baseGravity = Vector3.down;
     public GravitySettings gravity;
 
+
     public float mouseSpeed = 1;
     public float lookVerticalLimitFrom = -60;
     public float lookVerticalLimitTo = 60;
-    public float moveSpeed = 50;
+    public float updateGravityPeriod = 1;
+
     public float jumpHeight = 2;
     public float jumpAngle = 45;
-    public float updateGravityPeriod = 1;
+    public MoveSettings walkSettings;
+    public MoveSettings runSettings;
+
     public AnimationCurve gravityCurve = AnimationCurve.Linear(0, 0, 1, 1);
     [Range(0, 1)]
     public float flyInertia = 0.8f;
@@ -75,13 +88,14 @@ public class PlayerController : MonoBehaviour
     public float groundInertia = 0.2f;
     [Range(0, 1)]
     public float gravityVectorInterpolationK = 0.9f;
-    public float flyVelocityRotation = -1;
-    public float groundVelocityRotation = 1;
 
+
+    MoveSettings moveSettings;
     Rigidbody rigidBody;
     InputAction lookAction;
     InputAction moveAction;
     InputAction jumpAction;
+    InputAction sprintAction;
     float verticalLookAngle;
     bool canJump = false;
 
@@ -96,12 +110,14 @@ public class PlayerController : MonoBehaviour
         rigidBody = GetComponent<Rigidbody>();
         gravity = new GravitySettings((Vector3) => baseGravity, updateGravityPeriod, gravityCurve);
         verticalLookAngle = 0;
+        moveSettings = walkSettings;
 
         InputActionMap playerMap = actions.FindActionMap("Player");
         playerMap.Enable();
         lookAction = playerMap.FindAction("Look");
         moveAction = playerMap.FindAction("Move");
         jumpAction = playerMap.FindAction("Jump");
+        sprintAction = playerMap.FindAction("Sprint");
     }
 
     void Update()
@@ -119,9 +135,10 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        moveSettings = sprintAction.IsPressed() ? runSettings : walkSettings;
         gravity.Reset(transform.position);
         transform.rotation = ToGravityRotationWithVelocity() * transform.rotation;
-        Vector2 moveValue = moveAction.ReadValue<Vector2>() * moveSpeed;
+        Vector2 moveValue = moveAction.ReadValue<Vector2>() * moveSettings.moveSpeed;
         float downSpeed = Vector3.Dot(rigidBody.linearVelocity, DownVector);
         float forwardSpeed = Vector3.Dot(rigidBody.linearVelocity, ForwardVector);
         float rightSpeed = Vector3.Dot(rigidBody.linearVelocity, RightVector);
@@ -149,8 +166,8 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 normalizedGravity = gravity.Value.normalized;
         Vector3 velocityRotationAxis = Vector3.Cross(rigidBody.linearVelocity, normalizedGravity);
-        float velocityRotation = canJump ? groundVelocityRotation : flyVelocityRotation;
-        Vector3 targetVector = Quaternion.AngleAxis(velocityRotationAxis.magnitude * velocityRotation / moveSpeed, velocityRotationAxis) * normalizedGravity;
+        float velocityRotation = canJump ? moveSettings.groundVelocityRotation : moveSettings.flyVelocityRotation;
+        Vector3 targetVector = Quaternion.AngleAxis(velocityRotationAxis.magnitude * velocityRotation / moveSettings.moveSpeed, velocityRotationAxis) * normalizedGravity;
         targetVector = Vector3.Lerp(lastTarget, targetVector, gravityVectorInterpolationK).normalized;
         lastTarget = targetVector;
         Vector3 axis = Vector3.Cross(DownVector, targetVector);
