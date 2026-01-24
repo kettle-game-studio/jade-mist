@@ -10,12 +10,14 @@ Shader "Custom/SimpleFog"
 
     SubShader
     {
-        Tags { "RenderType" = "Transparent" "RenderPipeline" = "UniversalPipeline" }
+        Tags {
+            "RenderType" = "Transparent"
+            // "RenderType" = "Fog"
+            "RenderPipeline" = "UniversalPipeline"
+        }
 
         Pass
         {
-            // Blend SrcAlpha OneMinusSrcAlpha
-
             HLSLPROGRAM
 
             #pragma vertex vert
@@ -73,8 +75,9 @@ Shader "Custom/SimpleFog"
                 float delta = distance(input.positionWS, worldPosition);
 
                 float k = pow(_FogK, delta);
-                // return half4(_BaseColor, 1 - pow(_K, delta));
+                // return float4(sceneColor, 1);
                 return half4(lerp(color, sceneColor, k), 1);
+                // return half4(lerp(color, sceneColor, 1-color.x), 1);
             }
             ENDHLSL
         }
