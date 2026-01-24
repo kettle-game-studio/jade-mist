@@ -5,7 +5,7 @@ Shader "Custom/LocalSun"
         [MainColor] [HDR] _SkyColor("Sky Color", Color) = (0.5, 0.5, 1, 1)
         [HDR] _SunColor("Sun Color", Color) = (1, 1, 1, 1)
         _SunPosition("Sun Position", Vector) = (1, 1, 1, 1)
-        _SunAngle("Sun Angle", Range(0.0, 1.0)) = 0.5
+        _SunAngle("Sun Angle", Range(0.0, 3.14)) = 0.5
     }
 
     SubShader
@@ -51,8 +51,15 @@ Shader "Custom/LocalSun"
             {
                 float3 direction = normalize(input.positionWS - _WorldSpaceCameraPos.xyz);
                 float3 sunPosition = normalize(_SunPosition - _WorldSpaceCameraPos.xyz);
-                float value = dot(direction, sunPosition);
-                float3 color = value > _SunAngle ? _SunColor : _SkyColor;
+                float value = acos(dot(direction, sunPosition));
+                float3 color = 
+                            value < _SunAngle / 4 ? _SunColor :
+                            value < 7 * _SunAngle / 8 ? 0 : 
+                            value < _SunAngle ? _SunColor 
+                            : _SkyColor ;
+                    // value < _SunAngle ? _SkyColor : _SunColor;
+                    // (value < (_SunAngle + 0.001) ? _SunColor : _SkyColor);
+                    // value < _SunAngle / 3 ? _SkyColor : _SunColor;
                 return float4(color, 1);
             }
             ENDHLSL
