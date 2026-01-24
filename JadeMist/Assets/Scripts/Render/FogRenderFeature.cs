@@ -30,7 +30,6 @@ public class FogRenderFeature : ScriptableRendererFeature
         public FogRenderPass(LayerMask layerMask)
         {
             this.layerMask = layerMask;
-            fogBlitMaterial = new Material(fogBlitShader);
         }
 
         private RendererListParams CreateRenderListParams(UniversalRenderingData renderingData, UniversalCameraData cameraData, UniversalLightData lightData, ShaderTagId tag)
@@ -43,6 +42,9 @@ public class FogRenderFeature : ScriptableRendererFeature
 
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameContext)
         {
+            if (fogBlitMaterial == null)
+                fogBlitMaterial = new Material(fogBlitShader);
+
             UniversalResourceData resourceData = frameContext.Get<UniversalResourceData>();
             UniversalRenderingData universalRenderingData = frameContext.Get<UniversalRenderingData>();
             UniversalCameraData cameraData = frameContext.Get<UniversalCameraData>();
@@ -63,7 +65,7 @@ public class FogRenderFeature : ScriptableRendererFeature
 
                 builder.SetRenderFunc(static (FrontBackPassData data, RasterGraphContext context) =>
                 {
-                    float nearClipZ = SystemInfo.usesReversedZBuffer ? -1 : 1; // TODO: ???
+                    float nearClipZ = SystemInfo.usesReversedZBuffer ? -1 : 1;
                     context.cmd.ClearRenderTarget(true, false, Color.green, nearClipZ);
                     context.cmd.DrawRendererList(data.rendererList);
                 });
@@ -92,6 +94,8 @@ public class FogRenderFeature : ScriptableRendererFeature
                 builder.UseTexture(fogDepthBack, AccessFlags.Read);
                 builder.UseTexture(fogDepthFront, AccessFlags.Read);
 
+                TextureDesc desc = resourceData.activeColorTexture.GetDescriptor(renderGraph);
+                Vector2 scale = desc.scale;
                 builder.SetRenderFunc((ResetNativeRenderPassFrameData data, RasterGraphContext context) =>
                 {
                     Blitter.BlitTexture(context.cmd, new Vector4(1, 1, 0, 0), fogBlitMaterial, 0);
@@ -100,6 +104,10 @@ public class FogRenderFeature : ScriptableRendererFeature
         }
     }
 
+    [Range(0, 1)]
+    public float fogGlobalK = 0.5f;
+    public Color fogGlobalColor = Color.white;
+
     FogRenderPass fogRenderPass;
     // CopyDepthPass copyDepthPass;
 
@@ -107,11 +115,14 @@ public class FogRenderFeature : ScriptableRendererFeature
     {
         // copyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingTransparents, Shader.Find("Hidden/Universal Render Pipeline/CopyDepth"), false, true);
         fogRenderPass = new FogRenderPass(2500);
-        fogRenderPass.renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
+        fogRenderPass.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
+        Shader.SetGlobalFloat("_FogGlobalK", fogGlobalK);
+        Shader.SetGlobalColor("_FogGlobalColor", fogGlobalColor);
+
         renderer.EnqueuePass(fogRenderPass);
     }
 }
