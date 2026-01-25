@@ -61,29 +61,21 @@ Shader "Custom/LocalSun"
                 float u = dot(direction, v_v) / _SunAngle;
                 float v = dot(direction, v_v2) / _SunAngle;
 
-                float3 color;
+                float3 color = 0;
 
-                if (abs(u) > 0.5 || abs(v) > 0.5)
+                float3 control = SAMPLE_TEXTURE2D(_SunMap, sampler_SunMap, float2(u + 0.5, v + 0.5));
+
+                if (abs(u) >= 0.5 || abs(v) >= 0.5)
                     color = _SkyColor;
                 else {
-                    float3 control = SAMPLE_TEXTURE2D(_SunMap, sampler_SunMap, float2(u - 0.5, v - 0.5));
-                    color = lerp(_SkyColor, _SunColor, round(control.x));
+                    if (control.g > 0.1) {
+                        color = _SunColor;
+                    } else {
+                        color = _SkyColor;
+                    }
                 }
 
-                // float value = acos(dot(direction, sunPosition));
-                // float3 color = 
-                //             value < _SunAngle / 4 ? _SunColor :
-                //             value < 7 * _SunAngle / 8 ? 0 : 
-                //             value < _SunAngle ? _SunColor 
-                //             : _SkyColor ;
-                    // value < _SunAngle ? _SkyColor : _SunColor;
-                    // (value < (_SunAngle + 0.001) ? _SunColor : _SkyColor);
-                    // value < _SunAngle / 3 ? _SkyColor : _SunColor;
                 return float4(color, 1);
-
-
-
-                // 
             }
             ENDHLSL
         }

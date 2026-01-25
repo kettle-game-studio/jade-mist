@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Sun2
+  m_Name: Sun3
   m_Shader: {fileID: 4800000, guid: 10b0e75d8c261bf43bec1368748119b8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -69,7 +69,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SunMap:
-        m_Texture: {fileID: 2800000, guid: 4a3973b1534b57370915de669857798c, type: 3}
+        m_Texture: {fileID: 2800000, guid: c857a9f6650b091b5a41ffdbe6507bec, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -114,7 +114,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _SunAngle: 0.5
+    - _SunAngle: 0.3
     - _Surface: 0
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
@@ -123,11 +123,11 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _SkyColor: {r: 0.38430038, g: 0.7394313, b: 0.9622642, a: 1}
+    - _SkyColor: {r: 0.2240566, g: 0.8962264, b: 0.84523976, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _SunColor: {r: 137.187, g: 126.659706, b: 53.925694, a: 1}
+    - _SunColor: {r: 136.50266, g: 93.05399, b: 31.550144, a: 1}
     - _SunDirection: {r: 29.3, g: 39.21, b: -10, a: 1}
-    - _SunPosition: {r: -8.48533, g: 10, b: -5.62, a: 1}
+    - _SunPosition: {r: 7.58, g: 10, b: 5.83, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &3859760132186066768
