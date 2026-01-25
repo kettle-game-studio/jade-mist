@@ -6,6 +6,7 @@ Shader "Custom/LocalSun"
         [HDR] _SunColor("Sun Color", Color) = (1, 1, 1, 1)
         _SunPosition("Sun Position", Vector) = (1, 1, 1, 1)
         _SunAngle("Sun Angle", Range(0.0, 3.14)) = 0.5
+        [MainTexture] _SunMap("Sun Map", 2D) = "white"
     }
 
     SubShader
@@ -32,6 +33,9 @@ Shader "Custom/LocalSun"
                 float3 positionWS: TEXCOORD0;
             };
 
+            TEXTURE2D(_SunMap);
+            SAMPLER(sampler_SunMap);
+
             CBUFFER_START(UnityPerMaterial)
                 half3 _SkyColor;
                 half3 _SunColor;
@@ -51,16 +55,35 @@ Shader "Custom/LocalSun"
             {
                 float3 direction = normalize(input.positionWS - _WorldSpaceCameraPos.xyz);
                 float3 sunPosition = normalize(_SunPosition - _WorldSpaceCameraPos.xyz);
-                float value = acos(dot(direction, sunPosition));
-                float3 color = 
-                            value < _SunAngle / 4 ? _SunColor :
-                            value < 7 * _SunAngle / 8 ? 0 : 
-                            value < _SunAngle ? _SunColor 
-                            : _SkyColor ;
+
+                float3 v_v = normalize(cross(sunPosition, float3(1, 0, 0)));
+                float3 v_v2 = normalize(cross(sunPosition, v_v));
+                float u = dot(direction, v_v) / _SunAngle;
+                float v = dot(direction, v_v2) / _SunAngle;
+
+                float3 color;
+
+                if (abs(u) > 0.5 || abs(v) > 0.5)
+                    color = _SkyColor;
+                else {
+                    float3 control = SAMPLE_TEXTURE2D(_SunMap, sampler_SunMap, float2(u - 0.5, v - 0.5));
+                    color = lerp(_SkyColor, _SunColor, round(control.x));
+                }
+
+                // float value = acos(dot(direction, sunPosition));
+                // float3 color = 
+                //             value < _SunAngle / 4 ? _SunColor :
+                //             value < 7 * _SunAngle / 8 ? 0 : 
+                //             value < _SunAngle ? _SunColor 
+                //             : _SkyColor ;
                     // value < _SunAngle ? _SkyColor : _SunColor;
                     // (value < (_SunAngle + 0.001) ? _SunColor : _SkyColor);
                     // value < _SunAngle / 3 ? _SkyColor : _SunColor;
                 return float4(color, 1);
+
+
+
+                // 
             }
             ENDHLSL
         }

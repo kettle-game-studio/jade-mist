@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
@@ -16,7 +17,8 @@ public class PlayerController : MonoBehaviour
 
         Func<Vector3, Vector3> lastDefaultVector;
         float lastUpdateTime;
-        public Vector3 CurrentDefaultGravity(Vector3 point){
+        public Vector3 CurrentDefaultGravity(Vector3 point)
+        {
             float k = GravityCurve.Evaluate((Time.time - lastUpdateTime) / InterpolationPeriod);
             Vector3 a = lastDefaultVector(point);
             Vector3 b = DefaultVector(point);
@@ -81,6 +83,8 @@ public class PlayerController : MonoBehaviour
     public MoveSettings walkSettings;
     public MoveSettings runSettings;
 
+    public Image image;
+
     public AnimationCurve gravityCurve = AnimationCurve.Linear(0, 0, 1, 1);
     [Range(0, 1)]
     public float flyInertia = 0.8f;
@@ -96,6 +100,7 @@ public class PlayerController : MonoBehaviour
     InputAction moveAction;
     InputAction jumpAction;
     InputAction sprintAction;
+    InputAction interactAction;
     float verticalLookAngle;
     bool canJump = false;
 
@@ -118,10 +123,29 @@ public class PlayerController : MonoBehaviour
         moveAction = playerMap.FindAction("Move");
         jumpAction = playerMap.FindAction("Jump");
         sprintAction = playerMap.FindAction("Sprint");
+        interactAction = playerMap.FindAction("Interact");
     }
 
     void Update()
     {
+
+        var collide = Physics.Raycast(new Ray(playerCamera.position, playerCamera.transform.forward), out var raycastHitInfo, 3f);
+        
+        if (!collide || raycastHitInfo.collider == null || !raycastHitInfo.collider.gameObject.TryGetComponent<Interactinator>(out var interactinator))
+        {
+            image.color = Color.white;
+        }
+        else
+        {
+            image.color = Color.red;
+
+            if (interactAction.WasPressedThisDynamicUpdate())
+            {
+                interactinator.Interact(this, raycastHitInfo);
+            }
+        }
+
+
         var from = respawnPoint == null ? Vector3.zero : respawnPoint.transform.position;
         if (Vector3.Distance(from, transform.position) > deathDistance)
             Die();
@@ -146,8 +170,8 @@ public class PlayerController : MonoBehaviour
         float inertia = canJump ? groundInertia : flyInertia;
         if (canJump)
 
-        if (jumpAction.IsPressed() && canJump)
-            downSpeed = -JumpVelocity;
+            if (jumpAction.IsPressed() && canJump)
+                downSpeed = -JumpVelocity;
 
         rigidBody.linearVelocity =
             DownVector * downSpeed +

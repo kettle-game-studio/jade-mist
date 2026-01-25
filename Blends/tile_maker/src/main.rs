@@ -9,15 +9,15 @@ pub mod fill_test;
 
 fn main() {
     let decoder = png::Decoder::new(BufReader::new(
-        File::open("AncientDomeAlbedo_WIP.png").unwrap(),
+        File::open("images/control_panel.png").unwrap(),
     ));
     let mut reader = decoder.read_info().unwrap();
     let mut buf = vec![0; reader.output_buffer_size().unwrap()];
     let info = reader.next_frame(&mut buf).unwrap();
     let bytes = &buf[..info.buffer_size()];
 
-    let w = 4096;
-    let h = 4096;
+    let w = info.width as usize;
+    let h = info.height as usize;
 
     let mut img = Image {
         w,
@@ -25,9 +25,10 @@ fn main() {
         data: bytes.to_vec(),
     };
 
-    visit_image(&mut img);
+    // visit_image(&mut img);
+    visit_image_enumerate_tiles(&mut img);
 
-    let path = Path::new(r"AncientDomeAlbedo_Processed.png");
+    let path = Path::new(r"images/control_panel_processed.png");
     let file = File::create(path).unwrap();
     let writer = BufWriter::new(file);
 
@@ -49,6 +50,36 @@ fn main() {
     writer.write_image_data(data).unwrap(); //
 }
 
+pub fn visit_image_enumerate_tiles(image: &mut Image) {
+    let (w, h) = (image.width(), image.height());
+    let mut visited = Matrix::new(w, h, 0_u8);
+
+    let mut zone_count = 0;
+    for x in 0..w {
+        for y in 0..h {
+            if visited.get(x, y) != 0 {
+                continue;
+            }
+
+            let pixel = image.get_pixel(x, y);
+
+            if pixel.a < 10 {
+                continue;
+            }
+
+            visit_zone_set_color(
+                image,
+                &mut visited,
+                x,
+                y,
+                Color::gray(zone_count).with_a(255),
+            );
+            zone_count += 1;
+        }
+    }
+    println!("Zone count: {zone_count}");
+}
+
 pub fn visit_image(image: &mut Image) {
     let (w, h) = (image.width(), image.height());
     let mut visited = Matrix::new(w, h, 0_u8);
@@ -65,13 +96,24 @@ pub fn visit_image(image: &mut Image) {
                 continue;
             }
 
-            // if pixel.r == 0 && pixel.g == 0 && pixel.b == 0 {
-            //     continue;
-            // }
+            if pixel.r == 0 && pixel.g == 0 && pixel.b == 0 {
+                continue;
+            }
 
             visit_zone(image, &mut visited, x, y);
         }
     }
+}
+
+fn visit_zone_set_color(
+    image: &mut Image,
+    visited: &mut Matrix<u8>,
+    x: usize,
+    y: usize,
+    color: Color,
+) {
+    let _ = calc_color(image, visited, x as isize, y as isize);
+    set_color(image, visited, x as isize, y as isize, color);
 }
 
 fn visit_zone(image: &mut Image, visited: &mut Matrix<u8>, x: usize, y: usize) {
@@ -123,7 +165,7 @@ fn calc_color(image: &Image, visited: &mut Matrix<u8>, x: isize, y: isize) -> (C
 }
 
 fn set_color(image: &mut Image, visited: &mut Matrix<u8>, x: isize, y: isize, color: Color) {
-   let mut stack = Vec::new();
+    let mut stack = Vec::new();
     stack.push((x, y));
 
     while let Some((x, y)) = stack.pop() {
@@ -162,6 +204,11 @@ impl Color {
             a: c,
         }
     }
+
+    pub fn with_a(mut self, a: usize) -> Self {
+        self.a = a;
+        self
+    }
 }
 
 pub struct Image {
@@ -183,7 +230,7 @@ impl Image {
     }
 
     pub fn set_pixel(&mut self, x: usize, y: usize, color: Color) {
-        let i = (self.w * y + x)*4;
+        let i = (self.w * y + x) * 4;
         let d = &mut self.data[i..i + 4];
         d[0] = color.r as u8;
         d[1] = color.g as u8;
