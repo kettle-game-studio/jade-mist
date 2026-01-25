@@ -47,7 +47,7 @@ Shader "Hidden/Custom/RenderFogBlit"
             {
 
                 float2 sample_uv = input.positionCS.xy / _ScaledScreenParams.xy;
-                float3 screen_color = LoadSceneColor(input.positionCS.xy * 0.5); // TODO: * 0.5???
+                float3 screen_color = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearRepeat, input.texcoord).rgb;
                 float2 uv = ClampAndScaleUVForBilinear(sample_uv, _CameraDepthTexture_TexelSize.xy);
                 float screen_depth = sample_depth_texture(_CameraDepthTexture, uv);
                 float back_depth   = sample_depth_texture(_FogDepthBack, uv);

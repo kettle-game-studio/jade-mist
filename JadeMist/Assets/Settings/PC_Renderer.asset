@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 540ba06e08622354c9d875267f85f8f5, type: 3}
   m_Name: FogRenderFeature
   m_EditorClassIdentifier: Assembly-CSharp::FogRenderFeature
-  m_Active: 1
+  m_Active: 0
   fogGlobalK: 0.466
   fogGlobalColor: {r: 0, g: 0.49685526, b: 0.1612259, a: 1}
 --- !u!114 &11400000
@@ -42,7 +42,8 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
   - {fileID: -1260146168116194423}
-  m_RendererFeatureMap: ad6b866f10d7b46c89535d94bc0f83ee
+  - {fileID: 387847859035391765}
+  m_RendererFeatureMap: ad6b866f10d7b46c89535d94bc0f83ee1547b3a892e96105
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -71,6 +72,21 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
+--- !u!114 &387847859035391765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73defc362aafa1b4daed03898eb73bc8, type: 3}
+  m_Name: ParticleFogRenderFeature
+  m_EditorClassIdentifier: Assembly-CSharp::ParticleFogRenderFeature
+  m_Active: 0
+  fogGlobalK: 0.93
+  fogGlobalColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &7833122117494664109
 MonoBehaviour:
   m_ObjectHideFlags: 0

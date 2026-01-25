@@ -8,18 +8,18 @@ using UnityEngine.Rendering.Universal.Internal;
 
 public class FogRenderFeature : ScriptableRendererFeature
 {
-    public class FogRenderPass: ScriptableRenderPass
+    public class RenderPass: ScriptableRenderPass
     {
         class FrontBackPassData
         {
             public RendererListHandle rendererList;
         }
 
-        class ResetNativeRenderPassFrameData
+        class RenderPassData
         {
+            public TextureHandle cameraTexture;
         }
 
-        private LayerMask layerMask;
         private Shader fogBlitShader = Shader.Find("Hidden/Custom/RenderFogBlit");
         private Material fogBlitMaterial;
         private int _FogDepthBack = Shader.PropertyToID("_FogDepthBack");
@@ -27,16 +27,14 @@ public class FogRenderFeature : ScriptableRendererFeature
         private ShaderTagId shaderFrontTagId = new ShaderTagId("FogFront");
         private ShaderTagId shaderBackTagId = new ShaderTagId("FogBack");
 
-        public FogRenderPass(LayerMask layerMask)
-        {
-            this.layerMask = layerMask;
-        }
+        public RenderPass()
+        { }
 
         private RendererListParams CreateRenderListParams(UniversalRenderingData renderingData, UniversalCameraData cameraData, UniversalLightData lightData, ShaderTagId tag)
         {
             SortingCriteria sortingCriteria = SortingCriteria.None;
             DrawingSettings drawingSettings = RenderingUtils.CreateDrawingSettings(tag, renderingData, cameraData, lightData, sortingCriteria);
-            var filteringSettings = new FilteringSettings(RenderQueueRange.all, -1);
+            var filteringSettings = new FilteringSettings(RenderQueueRange.all);
             return new RendererListParams(renderingData.cullResults, drawingSettings, filteringSettings);
         }
 
@@ -87,18 +85,19 @@ public class FogRenderFeature : ScriptableRendererFeature
                 });
             }
 
-            using (var builder = renderGraph.AddRasterRenderPass<ResetNativeRenderPassFrameData>("Fog render pass", out var passData))
+            using (var builder = renderGraph.AddRasterRenderPass<RenderPassData>("Fog render pass", out var passData))
             {
                 builder.SetRenderAttachment(resourceData.activeColorTexture, 0, AccessFlags.ReadWrite);
-                builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.ReadWrite);
+                builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.Read);
                 builder.UseTexture(fogDepthBack, AccessFlags.Read);
                 builder.UseTexture(fogDepthFront, AccessFlags.Read);
 
                 TextureDesc desc = resourceData.activeColorTexture.GetDescriptor(renderGraph);
                 Vector2 scale = desc.scale;
-                builder.SetRenderFunc((ResetNativeRenderPassFrameData data, RasterGraphContext context) =>
+                passData.cameraTexture = resourceData.activeColorTexture;
+                builder.SetRenderFunc((RenderPassData data, RasterGraphContext context) =>
                 {
-                    Blitter.BlitTexture(context.cmd, new Vector4(1, 1, 0, 0), fogBlitMaterial, 0);
+                    Blitter.BlitTexture(context.cmd, data.cameraTexture, new Vector4(1, 1, 0, 0), fogBlitMaterial, 0);
                 });
             }
         }
@@ -108,14 +107,14 @@ public class FogRenderFeature : ScriptableRendererFeature
     public float fogGlobalK = 0.5f;
     public Color fogGlobalColor = Color.white;
 
-    FogRenderPass fogRenderPass;
+    RenderPass renderPass;
     // CopyDepthPass copyDepthPass;
 
     public override void Create()
     {
         // copyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingTransparents, Shader.Find("Hidden/Universal Render Pipeline/CopyDepth"), false, true);
-        fogRenderPass = new FogRenderPass(2500);
-        fogRenderPass.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+        renderPass = new RenderPass();
+        renderPass.renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -123,6 +122,6 @@ public class FogRenderFeature : ScriptableRendererFeature
         Shader.SetGlobalFloat("_FogGlobalK", fogGlobalK);
         Shader.SetGlobalColor("_FogGlobalColor", fogGlobalColor);
 
-        renderer.EnqueuePass(fogRenderPass);
+        renderer.EnqueuePass(renderPass);
     }
 }
