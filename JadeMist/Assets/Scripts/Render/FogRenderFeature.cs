@@ -106,6 +106,8 @@ public class FogRenderFeature : ScriptableRendererFeature
     [Range(0, 1)]
     public float fogGlobalK = 0.5f;
     public Color fogGlobalColor = Color.white;
+    public Texture2D fogNoiseMask;
+    public float fogMaskK = 1;
 
     RenderPass renderPass;
     // CopyDepthPass copyDepthPass;
@@ -121,6 +123,8 @@ public class FogRenderFeature : ScriptableRendererFeature
     {
         Shader.SetGlobalFloat("_FogGlobalK", fogGlobalK);
         Shader.SetGlobalColor("_FogGlobalColor", fogGlobalColor);
+        Shader.SetGlobalTexture("_FogNoiseMask", fogNoiseMask);
+        Shader.SetGlobalFloat("_FogMaskK", fogMaskK);
 
         renderer.EnqueuePass(renderPass);
     }

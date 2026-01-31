@@ -2,7 +2,7 @@ Shader "Custom/ParticleFog"
 {
     Properties
     {
-        // [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
+        [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         _Value ("Value", Float) = 0.5
         [MainTexture] _BaseMap("Base Map", 2D) = "white"
     }
@@ -46,6 +46,7 @@ Shader "Custom/ParticleFog"
 
             CBUFFER_START(UnityPerMaterial)
                 float _Value;
+                half3 _BaseColor;
             CBUFFER_END
 
             Varyings vert(Attributes input)
@@ -70,7 +71,7 @@ Shader "Custom/ParticleFog"
 
                 float3 worldPosition = ComputeWorldSpacePosition(screenUV, depth, UNITY_MATRIX_I_VP);
                 float delta = distance(input.positionWS, worldPosition);
-                return float4(min(value, delta), 0, 0, 0);
+                return float4(min(value, delta) * _BaseColor.x, 0, 0, 0);
             }
 
             ENDHLSL
