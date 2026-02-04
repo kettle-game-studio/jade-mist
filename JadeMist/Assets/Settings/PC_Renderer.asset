@@ -15,7 +15,7 @@ MonoBehaviour:
   m_Active: 1
   fogGlobalK: 0.327
   fogGlobalColor: {r: 0.027411861, g: 0.08044361, b: 0.088050246, a: 1}
-  fogNoiseMask: {fileID: 2800000, guid: 8d9396ee78a6ade4e9759af7bc9f72b5, type: 3}
+  fogNoiseMask: {fileID: 2800000, guid: 8a993f7c83288ba459aec414a76383bd, type: 3}
   fogMaskK: 2.31
 --- !u!114 &11400000
 MonoBehaviour:
