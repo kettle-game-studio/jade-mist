@@ -34,7 +34,6 @@ float fog_field_value(float3 coord)
     return a;
 }
 
-
 // float fog_field_value(float3 coord)
 // {
 //     float a = 1;
@@ -47,3 +46,46 @@ float fog_field_value(float3 coord)
 // {
 //     return distance(coord, _WorldSpaceCameraPos) * 0.01;
 // }
+
+float3 trace_fog_field(float3 positionWS, float3 normalWS, float depth, int iterations = 10)
+{
+    if (iterations <= 0)
+        return positionWS;
+
+    float3 view = normalize(positionWS - _WorldSpaceCameraPos);
+    float  d_proj = dot(view, normalWS);
+    float3 v_proj = view - normalWS * d_proj;
+
+    float t1 = 0;
+    float depth1 = -fog_field_value(positionWS) * depth;
+    float t2 = 0;
+    float depth2 = depth1;
+
+    float dist = distance(view, _WorldSpaceCameraPos);
+    float step = 1.0 / 200;
+
+    for (int i = 0; i < iterations; ++i)
+    {
+        t2 = t1;
+        depth2 = depth1;
+
+        // t1 += 0.5;
+        t1 += dist * step;
+        dist += dist * step;
+        depth1 = -fog_field_value(positionWS + v_proj * t1) * depth;
+        if (d_proj * t1 < depth1)
+            break;
+    }
+
+    float k = -(d_proj * t1 - depth1) / ((d_proj * t2 - d_proj * t1) - (depth2 - depth1));
+    float t = lerp(t1, t2, clamp(k, 0, 1));
+    // float t = t2;
+
+    // float t = 0; // 0.5 * depth;
+    // for (int i = 0; i < 3; ++i)
+    // {
+    //     float field_depth = -fog_field_value(positionWS + v_proj * t) * depth;
+    //     t = field_depth / d_proj;
+    // }
+    return positionWS + v_proj * t;
+}

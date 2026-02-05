@@ -72,60 +72,16 @@ Shader "Custom/ParallaxNoiseFog"
             FragOutput frag(Varyings input)
             {
                 FragOutput output;
-
-                float3 positionWS = input.positionWS;
                 float3 normalWS = normalize(input.normalWS);
+                float3 positionWS = input.positionWS;
 
-                float3 view = normalize(positionWS - _WorldSpaceCameraPos);
-                float  d_proj = dot(view, normalWS);
-                float3 v_proj = view - normalWS * d_proj;
-
-                float t1 = 0;
-                float depth1 = -fog_field_value(positionWS) * _Depth;
-                float t2 = 0;
-                float depth2 = 0;
-
-                float dist = distance(view, _WorldSpaceCameraPos);
-                float step = 1.0 / 200;
-
-                int i;
-                int count = 100;
-                for (i = 0; i < count; ++i)
-                {
-                    t2 = t1;
-                    depth2 = depth1;
-
-                    // t1 += 0.5;
-                    t1 += dist * step;
-                    dist += dist * step;
-                    depth1 = -fog_field_value(positionWS + v_proj * t1) * _Depth;
-                    if (d_proj * t1 < depth1)
-                        break;
-                }
-
-                float k = -(d_proj * t1 - depth1) / ((d_proj * t2 - d_proj * t1) - (depth2 - depth1));
-                float t = lerp(t1, t2, clamp(k, 0, 1));
-                // float t = t2;
-
-                // float t = 0; // 0.5 * _Depth;
-                // for (int i = 0; i < 3; ++i)
-                // {
-                //     float field_depth = -fog_field_value(positionWS + v_proj * t) * _Depth;
-                //     t = field_depth / d_proj;
-                // }
-
-                positionWS = positionWS + v_proj * t;
+                positionWS = trace_fog_field(positionWS, normalWS, _Depth);
                 float a = fog_field_value(positionWS);
-                // a = lerp(a, 0.5, clamp(t / -d_proj, 0 , 1));
 
                 output.color = float4(lerp(_BaseColor, _Color2, a), 1);
                 float4 hcs = TransformWorldToHClip(positionWS);
                 output.depth = hcs.z / hcs.w;
 
-                // a = float(i) / count;
-                // output.color = float4(a, a, a, 1);
-                // output.color = float4(_WorldSpaceCameraPos, 1);
-                // output.color = float4(normalWS, 1);
                 return output;
             }
             ENDHLSL
