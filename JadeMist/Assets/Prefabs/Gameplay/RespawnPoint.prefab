@@ -68,6 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RespawnPoint
   animatableCube: {fileID: 2517533269860725261}
+  meshRenderer: {fileID: 4072252768294049686}
 --- !u!1 &6808158755917723444
 GameObject:
   m_ObjectHideFlags: 0

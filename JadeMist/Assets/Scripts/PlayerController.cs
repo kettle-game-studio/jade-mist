@@ -66,7 +66,7 @@ public class PlayerController : MonoBehaviour
 
     public InputActionAsset actions;
 
-    public Transform respawnPoint;
+    public RespawnPoint respawnPoint;
     public float deathDistance = 200;
     public Transform playerCamera;
     public Vector3 baseGravity = Vector3.down;
@@ -223,8 +223,12 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawLine(transform.position, transform.position + ForwardVector);
     }
 
-    public void SetRespawnPoint(Transform newRespawnpoint)
+    public void SetRespawnPoint(RespawnPoint newRespawnpoint)
     {
+        if (respawnPoint != null)
+        {
+            respawnPoint.Deactivate();
+        }
         respawnPoint = newRespawnpoint;
     }
 

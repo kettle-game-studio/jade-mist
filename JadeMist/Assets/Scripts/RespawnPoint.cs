@@ -6,15 +6,35 @@ using UnityEngine.InputSystem;
 public class RespawnPoint : MonoBehaviour
 {
     public Transform animatableCube;
+    public MeshRenderer meshRenderer;
+
+    Material material;
+
+    void Start()
+    {
+        material = meshRenderer.material;
+        material.color = Color.gray;
+    }
 
     void OnTriggerEnter(Collider other)
     {
         var player = other.GetComponent<PlayerController>();
         if (player == null) return;
 
-        player.SetRespawnPoint(this.transform);
+
+        player.SetRespawnPoint(this);
         StartCoroutine(IndicateActivation());
-        Debug.Log("Respawn point set");
+        Activate();
+    }
+
+    public void Deactivate()
+    {   
+        material.color = Color.gray;
+    }
+
+    void Activate()
+    {
+        material.color = Color.red;
     }
 
     IEnumerator IndicateActivation()
