@@ -81,9 +81,9 @@ Shader "Hidden/Custom/ParallaxFogBlit"
                 float scene_depth = sample_depth_texture(_ParallaxFogSceneDepth, input.texcoord);
                 float fog_front_depth = sample_depth_texture(_ParallaxFogDepthFront, input.texcoord);
                 float fog_back_depth = sample_depth_texture(_ParallaxFogDepthBack, input.texcoord);
-                float pixel_gradient_noise = 0;
-                // float pixel_gradient_noise = ign_noise(input.positionCS.xy + _Time.xx * 1000);
-                // float pixel_gradient_noise = LOAD_TEXTURE2D(_ParallaxFogBlueNoise, int2(input.positionCS.xy + _Time.yy * 1000) % _ParallaxFogBlueNoiseSize);
+                // float pixel_gradient_noise = 0;
+                float pixel_gradient_noise = ign_noise(input.positionCS.xy + _Time.xx * 100);
+                // float pixel_gradient_noise = LOAD_TEXTURE2D(_ParallaxFogBlueNoise, int2(input.positionCS.xy + _Time.yy * 100) % _ParallaxFogBlueNoiseSize);
                 output.color = scene_color;
                 output.depth = store_depth(scene_depth);
 
@@ -94,7 +94,7 @@ Shader "Hidden/Custom/ParallaxFogBlit"
                     internal_counter > 0 && fog_front_depth < fog_back_depth ||
                     internal_counter < 0 && fog_front_depth > fog_back_depth)
                 {
-                    output.color = float4(1, 0, 1, 1);
+                    output.color = float3(1, 0, 1);
                     return output;
                 }
 
@@ -114,10 +114,13 @@ Shader "Hidden/Custom/ParallaxFogBlit"
                     internal_k = pow(_ParallaxFogInternalTransparency, dist);
                 }
 
-                int iteration_count = int(clamp(internal_k * 100, 0, 10));
+                int iteration_count = int(clamp(internal_k * 100, 0, 30));
                 fog_front_ws = trace_fog_field(fog_front_ws, front_normal, _ParallaxFogDepthValue, pixel_gradient_noise, iteration_count);
                 fog_front_depth = world_to_hclip_z(fog_front_ws);
 
+                // float3 view = normalize(fog_front_ws - _WorldSpaceCameraPos);
+                // if (dot(view, front_normal) >= 0) output.color = float3(1, 0, 1);
+                // else
                 if (scene_depth < fog_front_depth)
                 {
                     float dist = distance(fog_front_ws, scene_ws);
@@ -127,14 +130,14 @@ Shader "Hidden/Custom/ParallaxFogBlit"
                     float view_cos = abs(dot(fog_sample.normal, view_dir));
                     float view_sin = sqrt(1 - view_cos * view_cos);
                     float a = fog_sample.value;
-                    // float3 fog_surface_color = a < 0.13 ? _ParallaxFogExternalColor : _ParallaxFogInternalColor;
+
                     float3 fog_surface_color = lerp(_ParallaxFogExternalColor, _ParallaxFogInternalColor, a);
+                    // float3 fog_surface_color = a < 0.13 ? _ParallaxFogExternalColor : _ParallaxFogInternalColor;
                     // fog_surface_color = (1 - view_sin) / dist < 0.0009 ? _ParallaxFogBorderColor : fog_surface_color;
                     // fog_surface_color = view_cos < 0.2 ? lerp(_ParallaxFogBorderColor, fog_surface_color, clamp((view_cos - 0.19) * 100, 0, 1)) : fog_surface_color;
-                    // output.color = fog_sample.normal;
+                    
                     output.color = lerp(fog_surface_color, output.color, external_k);
                     output.depth = store_depth(fog_front_depth);
-                    // output.color = sample_fog_field(fog_front_ws, front_normal, _ParallaxFogDepthValue).normal;
                 }
 
                 if (in_fog)

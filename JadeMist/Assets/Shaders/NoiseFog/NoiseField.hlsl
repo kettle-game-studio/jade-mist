@@ -12,8 +12,10 @@ float fog_field_value(float3 coord)
     // a += 0.1 * voronoi3(coord + _Time.x * 10/3, 1.7);
     a = 1;
     // a *= voronoi3(coord, 0.5 / 3, 0);
-    a *= voronoi3(coord + float3(0, _Time.y * 5, _Time.y * 15) / 10, 0.5 / 3);
-    a *= voronoi3(coord + float3(0, _Time.y * 5, _Time.y * 10) / 10, 0.9 / 3);
+    // a *= voronoi3(coord + float3(0, _Time.y * 5, _Time.y * 15) / 10, 0.5 / 3);
+    // a *= voronoi3(coord + float3(0, _Time.y * 5, _Time.y * 10) / 10, 0.9 / 3);
+    a *= simplex_voronoi3(coord + float3(0, _Time.y * 5, _Time.y * 15) / 10, 0.5 / 3 * 0.5);
+    a *= simplex_voronoi3(coord + float3(0, _Time.y * 5, _Time.y * 10) / 10, 0.9 / 3 * 0.5);
     // a *= voronoi3(coord + _Time.x * 10/3, 0.7 / 2);
     // a = a / 3;
     // a = 1 - a;
