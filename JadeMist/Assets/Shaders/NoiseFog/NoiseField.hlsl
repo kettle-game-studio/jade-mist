@@ -96,7 +96,7 @@ float3 trace_fog_field(float3 positionWS, float3 normalWS, float depth, float gr
 
 struct FogSample
 {
-    float3 value;
+    float value;
     float3 position;
     float3 normal;
 };

@@ -9,11 +9,20 @@ Shader "Hidden/Custom/ParallaxFogBlit"
             ZTest Off
 
             HLSLPROGRAM
+            // This multi_compile declaration is required for the Forward rendering path
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS
+            
+            // This multi_compile declaration is required for the Forward+ rendering path
+            #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
             #include "NoiseField.hlsl"
+
+            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RealtimeLights.hlsl"
+
 
             #pragma vertex Vert
             #pragma fragment frag
@@ -69,6 +78,50 @@ Shader "Hidden/Custom/ParallaxFogBlit"
             {
                 float4 hcs = TransformWorldToHClip(position_ws);
                 return equalize_depth(hcs.z / hcs.w);
+            }
+
+            float3 MyLightingFunction(float3 normalWS, Light light)
+            {
+                float NdotL = dot(normalWS, normalize(light.direction));
+                NdotL = (NdotL + 1) * 0.5;
+                return saturate(NdotL) * light.color * light.distanceAttenuation * light.shadowAttenuation;
+            }
+
+            float3 apply_lightings(float3 position, float3 normal, float2 positionCS)
+            {
+                float3 lighting = float3(1, 1, 1) * 0.01;
+                
+                // // Get the main light
+                // Light mainLight = GetMainLight();
+                // lighting += MyLightingFunction(inputData.normalWS, mainLight);
+                
+                #if defined(_ADDITIONAL_LIGHTS)
+
+                // Additional light loop for non-main directional lights. This block is specific to Forward+.
+                #if USE_CLUSTER_LIGHT_LOOP
+                UNITY_LOOP for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
+                {
+                    Light additionalLight = GetAdditionalLight(lightIndex, position, half4(1,1,1,1));
+                    lighting += MyLightingFunction(normal, additionalLight);
+                }
+                #endif
+                
+                InputData inputData = (InputData)0;
+                inputData.positionWS = position;
+                inputData.normalWS = normal;
+                inputData.viewDirectionWS = GetWorldSpaceNormalizeViewDir(position);
+                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(positionCS);
+
+                // Additional light loop.
+                uint pixelLightCount = GetAdditionalLightsCount();
+                LIGHT_LOOP_BEGIN(pixelLightCount)
+                    Light additionalLight = GetAdditionalLight(lightIndex, position, half4(1,1,1,1));
+                    lighting += MyLightingFunction(normal, additionalLight);
+                LIGHT_LOOP_END
+                
+                #endif
+                
+                return lighting;
             }
 
             FragOutput frag(Varyings input)
@@ -132,13 +185,14 @@ Shader "Hidden/Custom/ParallaxFogBlit"
                     // float3 fog_surface_color = a < 0.13 ? _ParallaxFogExternalColor : _ParallaxFogInternalColor;
                     // fog_surface_color = (1 - view_sin) / dist < 0.0009 ? _ParallaxFogBorderColor : fog_surface_color;
                     // fog_surface_color = view_cos < 0.2 ? lerp(_ParallaxFogBorderColor, fog_surface_color, clamp((view_cos - 0.19) * 100, 0, 1)) : fog_surface_color;
+                    fog_surface_color = fog_surface_color * apply_lightings(fog_sample.position, fog_sample.normal, input.positionCS.xy);
                     
                     output.color = lerp(fog_surface_color, output.color, external_k);
                     output.depth = store_depth(fog_front_depth);
                 }
 
                 if (in_fog)
-                    output.color = float4(lerp(_ParallaxFogExternalColor, output.color, internal_k), 1);
+                    output.color = lerp(_ParallaxFogExternalColor, output.color, internal_k);
 
                 return output;
             }
