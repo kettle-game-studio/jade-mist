@@ -118,9 +118,6 @@ Shader "Hidden/Custom/ParallaxFogBlit"
                 fog_front_ws = trace_fog_field(fog_front_ws, front_normal, _ParallaxFogDepthValue, pixel_gradient_noise, iteration_count);
                 fog_front_depth = world_to_hclip_z(fog_front_ws);
 
-                // float3 view = normalize(fog_front_ws - _WorldSpaceCameraPos);
-                // if (dot(view, front_normal) >= 0) output.color = float3(1, 0, 1);
-                // else
                 if (scene_depth < fog_front_depth)
                 {
                     float dist = distance(fog_front_ws, scene_ws);
