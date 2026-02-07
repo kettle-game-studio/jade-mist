@@ -90,9 +90,11 @@ MonoBehaviour:
   m_Active: 0
   InternalColor: {r: 1, g: 1, b: 1, a: 1}
   ExternalColor: {r: 1, g: 1, b: 1, a: 1}
+  BorderColor: {r: 0, g: 0, b: 0, a: 1}
   fogDepth: 5
   externalTransparency: 0.5
   internalTransparency: 0.5
+  blueNoise: {fileID: 0}
 --- !u!114 &1382651004505527644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106,11 +108,13 @@ MonoBehaviour:
   m_Name: ParallaxFogRenderFeature
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxFogRenderFeature
   m_Active: 1
-  InternalColor: {r: 0, g: 0.0037565315, b: 0.095, a: 1}
-  ExternalColor: {r: 0.257367, g: 0.899371, b: 0.32226855, a: 1}
+  InternalColor: {r: 0.05448028, g: 0.10224175, b: 0.12743773, a: 1}
+  ExternalColor: {r: 0.46226406, g: 0.8691517, b: 1, a: 1}
+  BorderColor: {r: 0.000607054, g: 0.011612245, b: 0.009721218, a: 1}
   fogDepth: 5
-  externalTransparency: 0.15
+  externalTransparency: 0.5
   internalTransparency: 0.5
+  blueNoise: {fileID: 2800000, guid: 45c624616e0cd6b4faeb7b75784e6bf7, type: 3}
 --- !u!114 &7833122117494664109
 MonoBehaviour:
   m_ObjectHideFlags: 0

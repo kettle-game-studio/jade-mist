@@ -1,6 +1,13 @@
+#pragma once
+
+// Interleaved Gradient Noise
+float ign_noise(float2 uv)
+{
+    return frac(52.9829189 * frac(0.06711056f * uv.x + 0.00583715f * uv.y));
+}
+
 // Hash without Sine
 // https://www.shadertoy.com/view/4djSRW
-#pragma once
 
 float hash11(float p)
 {

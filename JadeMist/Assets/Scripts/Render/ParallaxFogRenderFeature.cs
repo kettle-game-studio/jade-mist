@@ -138,7 +138,7 @@ public class ParallaxFogRenderFeature : ScriptableRendererFeature
             using (var builder = renderGraph.AddRasterRenderPass<RenderPassData>("Render", out var passData))
             {
                 builder.SetRenderAttachment(resourceData.activeColorTexture, 0, AccessFlags.ReadWrite);
-                builder.SetRenderAttachmentDepth(resourceData.cameraDepthTexture, AccessFlags.ReadWrite);
+                builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.ReadWrite);
                 builder.UseTexture(fogFrontDepth, AccessFlags.Read);
                 builder.UseTexture(fogBackDepth, AccessFlags.Read);
                 builder.UseTexture(fogFrontNormals, AccessFlags.Read);
@@ -165,11 +165,14 @@ public class ParallaxFogRenderFeature : ScriptableRendererFeature
     public Color InternalColor = Color.black;
     [ColorUsage(true, true)]
     public Color ExternalColor = Color.white;
+    [ColorUsage(true, true)]
+    public Color BorderColor = Color.black;
     public float fogDepth = 5;
     [Range(0, 1)]
     public float externalTransparency = 0.5f;
     [Range(0, 1)]
     public float internalTransparency = 0.5f;
+    public Texture2D blueNoise;
 
     public override void Create()
     {
@@ -181,9 +184,14 @@ public class ParallaxFogRenderFeature : ScriptableRendererFeature
     {
         Shader.SetGlobalColor("_ParallaxFogInternalColor", InternalColor);
         Shader.SetGlobalColor("_ParallaxFogExternalColor", ExternalColor);
+        Shader.SetGlobalColor("_ParallaxFogBorderColor", BorderColor);
         Shader.SetGlobalFloat("_ParallaxFogDepthValue", fogDepth);
         Shader.SetGlobalFloat("_ParallaxFogExternalTransparency", externalTransparency);
         Shader.SetGlobalFloat("_ParallaxFogInternalTransparency", internalTransparency);
+
+        Shader.SetGlobalTexture("_ParallaxFogBlueNoise", blueNoise);
+        Vector2 blueNoiseSize = blueNoise != null ? new Vector2(blueNoise.width, blueNoise.height) : Vector2.one;
+        Shader.SetGlobalVector("_ParallaxFogBlueNoiseSize", blueNoiseSize);
 
         renderer.EnqueuePass(renderPass);
     }

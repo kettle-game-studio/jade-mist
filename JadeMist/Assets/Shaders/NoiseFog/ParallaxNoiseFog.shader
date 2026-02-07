@@ -74,11 +74,13 @@ Shader "Custom/ParallaxNoiseFog"
                 FragOutput output;
                 float3 normalWS = normalize(input.normalWS);
                 float3 positionWS = input.positionWS;
+                float gn = ign_noise(input.positionHCS.xy);
 
-                positionWS = trace_fog_field(positionWS, normalWS, _Depth);
+                positionWS = trace_fog_field(positionWS, normalWS, gn, _Depth);
                 float a = fog_field_value(positionWS);
 
-                output.color = float4(lerp(_BaseColor, _Color2, a), 1);
+                output.color = float4(a, a, a, 1);
+                // output.color = float4(lerp(_BaseColor, _Color2, a), 1);
                 float4 hcs = TransformWorldToHClip(positionWS);
                 output.depth = hcs.z / hcs.w;
 
