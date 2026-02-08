@@ -1,44 +1,57 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.LookDev;
 
-[RequireComponent(typeof(MeshRenderer))]
 public class ControlPanel : MonoBehaviour, Interactinator
 {
+    public MeshRenderer meshRenderer;
     public Texture2D metaTexture;
+    public int buttonCount = 100;
     public GameObject[] targets;
+    public string[] correctStrings;
 
     Texture2D controlTexture;
-
-    MeshRenderer meshRenderer;
     Material controlMaterial;
 
-    const int controlSize = 200;
-
-    byte[][] correct = {
-        new byte[]{1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        new byte[]{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        new byte[]{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    };
-
+    List<List<byte>> correct = new();
 
     void Start()
     {
-        meshRenderer = GetComponent<MeshRenderer>();
         controlMaterial = meshRenderer.material;
 
-        controlTexture = new Texture2D(controlSize, 1, TextureFormat.RGBA32, false, true, false);
-        
-        for (var i = 0; i < controlSize; i += 1)
+        controlTexture = new Texture2D(buttonCount * 3, 1, TextureFormat.RGBA32, false, true, false);
+
+        for (var i = 0; i < buttonCount * 3; i += 1)
             controlTexture.SetPixel(i, 0, Color.black);
         controlTexture.Apply();
 
+        controlMaterial.SetTexture("_MetaTexture", metaTexture);
         controlMaterial.SetTexture("_ControlTexture", controlTexture);
 
+        ParseCorrectStrings();
         CheckValue();
+    }
+
+    void ParseCorrectStrings()
+    {
+        foreach (var correctString in correctStrings)
+        {
+            var array = new List<byte>(correctString.Length);
+            foreach (var ch in correctString)
+            {
+                if (ch == '1')
+                    array.Add(1);
+                else if (ch == '0')
+                    array.Add(0);
+                else
+                    Debug.Log($"Unexpected value in correctStrings: '{ch}'");
+            }
+            correct.Add(array);
+        }
     }
 
     public void Interact(PlayerController player, RaycastHit raycastHitInfo)
@@ -51,17 +64,19 @@ public class ControlPanel : MonoBehaviour, Interactinator
 
         if (id == 255)
         {
-            for (var i = 0; i < controlSize; i += 1)
+            var data = CurrentStateString();
+            Debug.Log(data);
+            GUIUtility.systemCopyBuffer = data;
+            return;
+        }
+        if (id == 254)
+        {
+            for (var i = 0; i < buttonCount * 3; i += 1)
                 controlTexture.SetPixel(i, 0, Color.black);
 
             controlTexture.Apply();
             controlMaterial.SetTexture("_ControlTexture", controlTexture);
             CheckValue();
-
-            // var data = $"{{{string.Join(", ", CurrentState().Select(s => s.ToString()).Take(40))}}}; ";
-            // Debug.Log(data);
-            // GUIUtility.systemCopyBuffer = data;
-            return;
         }
 
         if (controlTexture.GetPixel(id * 2, 0).r < 0.5)
@@ -73,7 +88,7 @@ public class ControlPanel : MonoBehaviour, Interactinator
             controlTexture.SetPixel(id * 2, 0, Color.black);
         }
 
-        Debug.Log($"Toggle {id}");
+        // Debug.Log($"Toggle {id} = {CurrentStateString()}");
 
         controlTexture.Apply();
         controlMaterial.SetTexture("_ControlTexture", controlTexture);
@@ -82,14 +97,16 @@ public class ControlPanel : MonoBehaviour, Interactinator
 
     void CheckValue()
     {
+        Debug.Log("CheckValue");
         var state = CurrentState();
-        for (var i = 0; i < correct.Length; i += 1)
+        for (var i = 0; i < correct.Count; i += 1)
         {
             var flag = true;
-            for (var j = 0; j < correct[i].Length; j += 1)
+            for (var j = 0; j < correct[i].Count; j += 1)
             {
                 if (correct[i][j] != state[j])
                 {
+                    Debug.Log($"correct[{i}][{j}] <{correct[i][j]}> != state[{j}] <{state[j]}>");
                     flag = false;
                     break;
                 }
@@ -97,22 +114,28 @@ public class ControlPanel : MonoBehaviour, Interactinator
 
             if (flag)
             {
-                targets[i].GetComponent<MeshRenderer>().material.color = Color.white;
+                Debug.Log($"activate {i}");
+                targets[i].GetComponent<Activatinator>().Activate();
             }
             else
             {
-                targets[i].GetComponent<MeshRenderer>().material.color = Color.black;
+                targets[i].GetComponent<Activatinator>().Deactivate();
             }
 
         }
     }
 
+    string CurrentStateString()
+    {
+        return string.Join("", CurrentState().Select(s => s.ToString()).Take(buttonCount));
+    }
+
     byte[] CurrentState()
     {
-        var result = new byte[controlSize];
-        for (var i = 0; i < controlSize; i++)
+        var result = new byte[buttonCount];
+        for (var i = 0; i < buttonCount; i++)
         {
-            if (controlTexture.GetPixel(i, 0).r > 0.5)
+            if (controlTexture.GetPixel(i * 2, 0).r > 0.5)
                 result[i] = 1;
         }
         return result;

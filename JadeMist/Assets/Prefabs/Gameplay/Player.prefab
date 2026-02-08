@@ -269,7 +269,7 @@ MonoBehaviour:
     moveSpeed: 7
     flyVelocityRotation: -7
     groundVelocityRotation: 2
-  image: {fileID: 1115589765003601379}
+  crosshair: {fileID: 1115589765003601379}
   gravityCurve:
     serializedVersion: 2
     m_Curve:

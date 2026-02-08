@@ -9,7 +9,7 @@ pub mod fill_test;
 
 fn main() {
     let decoder = png::Decoder::new(BufReader::new(
-        File::open("images/control_panel.png").unwrap(),
+        File::open("images/control_panel_0.png").unwrap(),
     ));
     let mut reader = decoder.read_info().unwrap();
     let mut buf = vec![0; reader.output_buffer_size().unwrap()];
@@ -28,7 +28,7 @@ fn main() {
     // visit_image(&mut img);
     visit_image_enumerate_tiles(&mut img);
 
-    let path = Path::new(r"images/control_panel_processed.png");
+    let path = Path::new(r"images/control_panel_0_processed.png");
     let file = File::create(path).unwrap();
     let writer = BufWriter::new(file);
 

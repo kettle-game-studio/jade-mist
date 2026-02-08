@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
     public MoveSettings walkSettings;
     public MoveSettings runSettings;
 
-    public Image image;
+    public Image crosshair;
 
     public AnimationCurve gravityCurve = AnimationCurve.Linear(0, 0, 1, 1);
     [Range(0, 1)]
@@ -124,20 +124,28 @@ public class PlayerController : MonoBehaviour
         jumpAction = playerMap.FindAction("Jump");
         sprintAction = playerMap.FindAction("Sprint");
         interactAction = playerMap.FindAction("Interact");
+
+        playerCamera.gameObject.SetActive(true);
+        if (crosshair == null)
+            Debug.Log("No crosshair");
+        else if (crosshair.transform.parent == null)
+            Debug.Log("No canvas");
+        else
+            crosshair.transform.parent.gameObject.SetActive(true);
     }
 
     void Update()
     {
 
         var collide = Physics.Raycast(new Ray(playerCamera.position, playerCamera.transform.forward), out var raycastHitInfo, 3f);
-        
+
         if (!collide || raycastHitInfo.collider == null || !raycastHitInfo.collider.gameObject.TryGetComponent<Interactinator>(out var interactinator))
         {
-            image.color = Color.white;
+            crosshair.color = Color.white;
         }
         else
         {
-            image.color = Color.red;
+            crosshair.color = Color.red;
 
             if (interactAction.WasPressedThisDynamicUpdate())
             {
