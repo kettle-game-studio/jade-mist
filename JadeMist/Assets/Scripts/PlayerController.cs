@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
     public MoveSettings walkSettings;
     public MoveSettings runSettings;
 
-    public Image crosshair;
+    public PlayerUI playerUI;
 
     public AnimationCurve gravityCurve = AnimationCurve.Linear(0, 0, 1, 1);
     [Range(0, 1)]
@@ -126,12 +126,7 @@ public class PlayerController : MonoBehaviour
         interactAction = playerMap.FindAction("Interact");
 
         playerCamera.gameObject.SetActive(true);
-        if (crosshair == null)
-            Debug.Log("No crosshair");
-        else if (crosshair.transform.parent == null)
-            Debug.Log("No canvas");
-        else
-            crosshair.transform.parent.gameObject.SetActive(true);
+        playerUI.gameObject.SetActive(true);
     }
 
     void Update()
@@ -141,11 +136,11 @@ public class PlayerController : MonoBehaviour
 
         if (!collide || raycastHitInfo.collider == null || !raycastHitInfo.collider.gameObject.TryGetComponent<Interactinator>(out var interactinator))
         {
-            crosshair.color = Color.white;
+            playerUI.LookingAtActivatable(false);
         }
         else
         {
-            crosshair.color = Color.red;
+            playerUI.LookingAtActivatable(true);
 
             if (interactAction.WasPressedThisDynamicUpdate())
             {
@@ -251,5 +246,10 @@ public class PlayerController : MonoBehaviour
         rigidBody.linearVelocity = Vector3.zero;
         lastTarget = baseGravity.normalized;
         gravity.UpdateDefaultGravity(_ => baseGravity, true);
+    }
+
+    public void EnterArea(string areaId)
+    {
+        playerUI.DisplayAreaName(areaId);
     }
 }
