@@ -146,8 +146,6 @@ public class ParallaxFogRenderFeature : ScriptableRendererFeature
                 builder.UseTexture(internalCounter, AccessFlags.Read);
                 passData.sceneDepthTexture = resourceData.activeDepthTexture;
 
-                TextureDesc desc = resourceData.activeColorTexture.GetDescriptor(renderGraph);
-                Vector2 scale = desc.scale;
                 passData.cameraTexture = resourceData.activeColorTexture;
                 builder.SetRenderFunc((RenderPassData data, RasterGraphContext context) =>
                 {

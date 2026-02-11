@@ -108,8 +108,8 @@ MonoBehaviour:
   m_Name: ParallaxFogRenderFeature
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxFogRenderFeature
   m_Active: 1
-  InternalColor: {r: 0.05448028, g: 0.10224175, b: 0.12743773, a: 1}
-  ExternalColor: {r: 0.46226406, g: 0.8691517, b: 1, a: 1}
+  InternalColor: {r: 0, g: 0, b: 0, a: 1}
+  ExternalColor: {r: 1, g: 1, b: 1, a: 1}
   BorderColor: {r: 0.000607054, g: 0.011612245, b: 0.009721218, a: 1}
   fogDepth: 5
   externalTransparency: 0.15
