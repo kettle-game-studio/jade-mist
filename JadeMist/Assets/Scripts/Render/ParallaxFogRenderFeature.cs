@@ -165,6 +165,8 @@ public class ParallaxFogRenderFeature : ScriptableRendererFeature
     public Color ExternalColor = Color.white;
     [ColorUsage(true, true)]
     public Color BorderColor = Color.black;
+    [ColorUsage(true, true)]
+    public Color lightingFactor = Color.white;
     public float fogDepth = 5;
     [Range(0, 1)]
     public float externalTransparency = 0.5f;
@@ -183,6 +185,7 @@ public class ParallaxFogRenderFeature : ScriptableRendererFeature
         Shader.SetGlobalColor("_ParallaxFogInternalColor", InternalColor);
         Shader.SetGlobalColor("_ParallaxFogExternalColor", ExternalColor);
         Shader.SetGlobalColor("_ParallaxFogBorderColor", BorderColor);
+        Shader.SetGlobalColor("_ParallaxFogLightingFactor", lightingFactor);
         Shader.SetGlobalFloat("_ParallaxFogDepthValue", fogDepth);
         Shader.SetGlobalFloat("_ParallaxFogExternalTransparency", externalTransparency);
         Shader.SetGlobalFloat("_ParallaxFogInternalTransparency", internalTransparency);

@@ -41,6 +41,7 @@ Shader "Hidden/Custom/ParallaxFogBlit"
             float _ParallaxFogDepthValue;
             float _ParallaxFogExternalTransparency;
             float _ParallaxFogInternalTransparency;
+            float3 _ParallaxFogLightingFactor;
 
             struct FragOutput
             {
@@ -81,7 +82,7 @@ Shader "Hidden/Custom/ParallaxFogBlit"
 
             float3 fog_lighting(float3 normalWS, Light light, float fog_value)
             {
-                return light.color * light.distanceAttenuation * light.shadowAttenuation;
+                return _ParallaxFogLightingFactor * light.color * light.distanceAttenuation * light.shadowAttenuation;
             }
 
             float3 apply_lightings(float3 position, float3 normal, float2 positionCS, float fog_value)
@@ -184,7 +185,7 @@ Shader "Hidden/Custom/ParallaxFogBlit"
                     // float3 fog_surface_color = a < 0.13 ? _ParallaxFogExternalColor : _ParallaxFogInternalColor;
                     // fog_surface_color = (1 - view_sin) / dist < 0.0009 ? _ParallaxFogBorderColor : fog_surface_color;
                     // fog_surface_color = view_cos < 0.2 ? lerp(_ParallaxFogBorderColor, fog_surface_color, clamp((view_cos - 0.19) * 100, 0, 1)) : fog_surface_color;
-                    fog_surface_color = fog_surface_color * apply_lightings(fog_sample.position, fog_sample.normal, input.positionCS.xy, a);
+                    fog_surface_color = fog_surface_color * apply_lightings(fog_sample.position, fog_sample.normal, input.positionCS.xy, pixel_gradient_noise);
                     
                     output.color = lerp(fog_surface_color, output.color, external_k);
                     output.depth = store_depth(fog_front_depth);
@@ -192,7 +193,10 @@ Shader "Hidden/Custom/ParallaxFogBlit"
 
                 if (in_fog)
                 {
-                    float3 fog_color = _ParallaxFogExternalColor * apply_lightings(_WorldSpaceCameraPos, float3(0, 0, 0), input.positionCS.xy, 1);
+                    float3 offset = fog_back_ws - _WorldSpaceCameraPos;
+                    float offset_len = length(offset);
+                    offset = offset / offset_len * min(offset_len, 0.5);
+                    float3 fog_color = _ParallaxFogExternalColor * apply_lightings(_WorldSpaceCameraPos + offset, float3(0, 0, 0), input.positionCS.xy, 1);
                     output.color = lerp(fog_color, output.color, internal_k);
                 }
 
