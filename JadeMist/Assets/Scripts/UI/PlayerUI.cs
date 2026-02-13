@@ -8,6 +8,8 @@ public class PlayerUI : MonoBehaviour
     public Image crosshair;
     public TMPro.TextMeshProUGUI areaText;
     public float areaAnnouncementTime = 2f; 
+    public TextProvider textProvider;
+    public DialogUI dialogUI;
 
     Coroutine coroutine;
 
@@ -25,7 +27,8 @@ public class PlayerUI : MonoBehaviour
     {
         if (coroutine != null)
             StopCoroutine(coroutine);
-        coroutine = StartCoroutine(DisplayAreaNameCoroutine(areaID));
+        var areaName = textProvider.GetText(areaID);
+        coroutine = StartCoroutine(DisplayAreaNameCoroutine(areaName));
     }
 
     IEnumerator DisplayAreaNameCoroutine(string areaName)

@@ -111,7 +111,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        // Cursor.lockState = CursorLockMode.Locked;
         rigidBody = GetComponent<Rigidbody>();
         gravity = new GravitySettings((Vector3) => baseGravity, updateGravityPeriod, gravityCurve);
         verticalLookAngle = 0;
@@ -131,6 +131,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        return;
 
         var collide = Physics.Raycast(new Ray(playerCamera.position, playerCamera.transform.forward), out var raycastHitInfo, 3f);
 
@@ -162,6 +163,8 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        return;
+
         moveSettings = sprintAction.IsPressed() ? runSettings : walkSettings;
         gravity.Reset(transform.position);
         transform.rotation = ToGravityRotationWithVelocity() * transform.rotation;

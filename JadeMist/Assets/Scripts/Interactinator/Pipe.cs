@@ -31,7 +31,6 @@ public class Pipe : MonoBehaviour, Interactinator
     IEnumerator RunRunes()
     {
         var length = splineContainer.Spline.GetLength();
-        Debug.Log($"pipe length = {length}");
         var current = 0f;
         while (current <= length)
         {

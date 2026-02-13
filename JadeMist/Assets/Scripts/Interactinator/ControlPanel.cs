@@ -65,7 +65,6 @@ public class ControlPanel : MonoBehaviour, Interactinator
         if (id == 255)
         {
             var data = CurrentStateString();
-            Debug.Log(data);
             GUIUtility.systemCopyBuffer = data;
             return;
         }
@@ -88,8 +87,6 @@ public class ControlPanel : MonoBehaviour, Interactinator
             controlTexture.SetPixel(id * 2, 0, Color.black);
         }
 
-        // Debug.Log($"Toggle {id} = {CurrentStateString()}");
-
         controlTexture.Apply();
         controlMaterial.SetTexture("_ControlTexture", controlTexture);
         CheckValue();
@@ -97,7 +94,6 @@ public class ControlPanel : MonoBehaviour, Interactinator
 
     void CheckValue()
     {
-        Debug.Log("CheckValue");
         var state = CurrentState();
         for (var i = 0; i < correct.Count; i += 1)
         {
@@ -106,7 +102,6 @@ public class ControlPanel : MonoBehaviour, Interactinator
             {
                 if (correct[i][j] != state[j])
                 {
-                    Debug.Log($"correct[{i}][{j}] <{correct[i][j]}> != state[{j}] <{state[j]}>");
                     flag = false;
                     break;
                 }
@@ -114,7 +109,6 @@ public class ControlPanel : MonoBehaviour, Interactinator
 
             if (flag)
             {
-                Debug.Log($"activate {i}");
                 targets[i].GetComponent<Activatinator>().Activate();
             }
             else
