@@ -177,7 +177,7 @@ public class ParallaxFogRenderFeature : ScriptableRendererFeature
     public override void Create()
     {
         renderPass = new RenderPass();
-        renderPass.renderPassEvent = RenderPassEvent.AfterRenderingOpaques;
+        renderPass.renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)

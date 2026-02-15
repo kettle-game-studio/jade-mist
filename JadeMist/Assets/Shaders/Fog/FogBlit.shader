@@ -48,35 +48,15 @@ Shader "Hidden/Custom/FogBlit"
                 float  depth : SV_Depth;
             };
 
-            float equalize_depth(float depth)
-            {
-                #if UNITY_REVERSED_Z
-                    return depth;
-                #else
-                    // Adjust Z to match NDC for OpenGL ([-1, 1])
-                    return lerp(UNITY_NEAR_CLIP_VALUE, 1, depth);
-                #endif
-            }
-
-            float store_depth(float depth)
-            {
-                #if UNITY_REVERSED_Z
-                    return depth;
-                #else
-                    // Adjust Z to match NDC for OpenGL ([-1, 1])
-                    return (depth + UNITY_NEAR_CLIP_VALUE) / (1 - UNITY_NEAR_CLIP_VALUE);
-                #endif
-            }
-
             float sample_depth_texture(TEXTURE2D_FLOAT(depth_texture), float2 uv)
             {
-                return equalize_depth(SAMPLE_TEXTURE2D(depth_texture, sampler_PointClamp, uv).r);
+                return SAMPLE_TEXTURE2D(depth_texture, sampler_PointClamp, uv).r;
             }
 
             float world_to_hclip_z(float3 position_ws)
             {
                 float4 hcs = TransformWorldToHClip(position_ws);
-                return equalize_depth(hcs.z / hcs.w);
+                return hcs.z / hcs.w;
             }
 
             float3 fog_lighting(float3 normalWS, Light light, float fog_value)
@@ -135,7 +115,7 @@ Shader "Hidden/Custom/FogBlit"
                 float pixel_gradient_noise = ign_noise(input.positionCS.xy + _Time.xx * 100);
                 // float pixel_gradient_noise = LOAD_TEXTURE2D(_ParallaxFogBlueNoise, int2(input.positionCS.xy + _Time.yy * 100) % _ParallaxFogBlueNoiseSize);
                 output.color = scene_color;
-                output.depth = store_depth(scene_depth);
+                output.depth = scene_depth;
                 // output.color = float3(1, 1, 1) * SampleScreenSpaceShadowmap(input.positionCS);
                 // return output;
 
@@ -187,7 +167,7 @@ Shader "Hidden/Custom/FogBlit"
                     fog_surface_color = fog_surface_color * apply_lightings(fog_sample.position, fog_sample.normal, input.positionCS.xy, pixel_gradient_noise);
                     
                     output.color = lerp(fog_surface_color, output.color, external_k);
-                    output.depth = store_depth(fog_front_depth);
+                    output.depth = fog_front_depth;
                 }
 
                 if (in_fog)

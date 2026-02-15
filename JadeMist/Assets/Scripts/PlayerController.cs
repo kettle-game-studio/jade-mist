@@ -60,6 +60,7 @@ public class PlayerController : MonoBehaviour
     public class MoveSettings
     {
         public float moveSpeed = 6;
+        public float swimSpeed = 6;
         public float flyVelocityRotation = -5;
         public float groundVelocityRotation = 1;
     }
@@ -67,6 +68,7 @@ public class PlayerController : MonoBehaviour
     public InputActionAsset actions;
 
     public RespawnPoint respawnPoint;
+    public WaterSensor waterSensor;
     public float deathDistance = 200;
     public Transform playerCamera;
     public Vector3 baseGravity = Vector3.down;
@@ -91,6 +93,10 @@ public class PlayerController : MonoBehaviour
     [Range(0, 1)]
     public float groundInertia = 0.2f;
     [Range(0, 1)]
+    public float swimInertia = 0.9f;
+    [Range(0, 1)]
+    public float swimGravityFactor = 0.9f;
+    [Range(0, 1)]
     public float gravityVectorInterpolationK = 0.9f;
 
 
@@ -114,7 +120,9 @@ public class PlayerController : MonoBehaviour
     {
         Walking,
         Dialog,
+        Swimming,
     }
+    [SerializeField]
     PlayerState playerState = PlayerState.Walking;
 
     void Start()
@@ -171,27 +179,48 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (playerState == PlayerState.Walking || playerState == PlayerState.Swimming)
+            playerState = waterSensor.InWater ? PlayerState.Swimming : PlayerState.Walking;
+
         moveSettings = sprintAction.IsPressed() ? runSettings : walkSettings;
         gravity.Reset(transform.position);
         transform.rotation = ToGravityRotationWithVelocity() * transform.rotation;
-        Vector2 moveValue = moveAction.ReadValue<Vector2>() * moveSettings.moveSpeed;
-        float downSpeed = Vector3.Dot(rigidBody.linearVelocity, DownVector);
-        float forwardSpeed = Vector3.Dot(rigidBody.linearVelocity, ForwardVector);
-        float rightSpeed = Vector3.Dot(rigidBody.linearVelocity, RightVector);
 
-        float inertia = canJump ? groundInertia : flyInertia;
-        if (canJump)
-            if (jumpAction.IsPressed() && canJump)
-                downSpeed = -JumpVelocity;
+        Vector2 moveValue = moveAction.ReadValue<Vector2>();
 
-        rigidBody.linearVelocity =
-            DownVector * downSpeed +
-            ForwardVector * Mathf.Lerp(moveValue.y, forwardSpeed, inertia) +
-            RightVector * Mathf.Lerp(moveValue.x, rightSpeed, inertia);
+        if (playerState == PlayerState.Walking)
+        {
+            moveValue *= moveSettings.moveSpeed;
+            float downSpeed = Vector3.Dot(rigidBody.linearVelocity, DownVector);
+            float forwardSpeed = Vector3.Dot(rigidBody.linearVelocity, ForwardVector);
+            float rightSpeed = Vector3.Dot(rigidBody.linearVelocity, RightVector);
 
-        if (!canJump)
-            rigidBody.linearVelocity += gravity.Value * Time.deltaTime;
+            float inertia = canJump ? groundInertia : flyInertia;
+            if (canJump)
+                if (jumpAction.IsPressed() && canJump)
+                    downSpeed = -JumpVelocity;
 
+            rigidBody.linearVelocity =
+                DownVector * downSpeed +
+                ForwardVector * Mathf.Lerp(moveValue.y, forwardSpeed, inertia) +
+                RightVector * Mathf.Lerp(moveValue.x, rightSpeed, inertia);
+
+            if (!canJump)
+                rigidBody.linearVelocity += gravity.Value * Time.deltaTime;
+
+        }
+        if (playerState == PlayerState.Swimming)
+        {
+            Vector3 moveVelocity = (
+                moveValue.y * playerCamera.transform.forward +
+                moveValue.x * RightVector +
+                (jumpAction.IsPressed() ? -DownVector : Vector3.zero)
+            ).normalized * moveSettings.swimSpeed;
+
+            rigidBody.linearVelocity =
+                gravity.Value * Time.deltaTime * swimGravityFactor +
+                Vector3.Lerp(moveVelocity, rigidBody.linearVelocity, swimInertia);
+        }
         canJump = false;
     }
 
