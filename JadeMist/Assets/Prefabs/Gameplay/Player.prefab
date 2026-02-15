@@ -143,7 +143,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 10, y: 0.0008481294}
+  m_AnchoredPosition: {x: 10, y: 0.00044320675}
   m_SizeDelta: {x: -20, y: 500}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &2981087463738509734
@@ -198,6 +198,100 @@ MonoBehaviour:
   container: {fileID: 2076925483889501600}
   textPrefab: {fileID: 5961632095991338235, guid: d1c53d1cd81e63e889d9d7a16ce89713, type: 3}
   buttonPrefab: {fileID: 7305565057520215340, guid: 92c1ba09f288842caa22d26bab94e5b6, type: 3}
+--- !u!1 &3438326473318545444
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6204488122554618871}
+  - component: {fileID: 8233531048664189038}
+  - component: {fileID: 7761127917011055990}
+  - component: {fileID: 5493322203373613642}
+  m_Layer: 6
+  m_Name: WaterSensor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6204488122554618871
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3438326473318545444}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.4685, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3178099545716259044}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &8233531048664189038
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3438326473318545444}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.23
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7761127917011055990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3438326473318545444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f266f20f4a9f584d84d46ea1df512ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaterSensor
+--- !u!54 &5493322203373613642
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3438326473318545444}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 126
+  m_CollisionDetection: 0
 --- !u!1 &3813140117937753472
 GameObject:
   m_ObjectHideFlags: 0
@@ -471,7 +565,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1121875345801156584}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999921
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -511,6 +605,7 @@ Transform:
   - {fileID: 8410459915142222050}
   - {fileID: 959172820996894593}
   - {fileID: 9040108011646380799}
+  - {fileID: 6204488122554618871}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &650833772664586892
@@ -577,6 +672,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   respawnPoint: {fileID: 0}
+  waterSensor: {fileID: 7761127917011055990}
   deathDistance: 200
   playerCamera: {fileID: 8410459915142222050}
   baseGravity: {x: 0, y: -20, z: 0}
@@ -588,10 +684,12 @@ MonoBehaviour:
   jumpAngle: 60
   walkSettings:
     moveSpeed: 4
+    swimSpeed: 4
     flyVelocityRotation: -2
     groundVelocityRotation: 0.5
   runSettings:
     moveSpeed: 7
+    swimSpeed: 7
     flyVelocityRotation: -7
     groundVelocityRotation: 2
   playerUI: {fileID: 5826270711085323418}
@@ -621,7 +719,10 @@ MonoBehaviour:
     m_RotationOrder: 4
   flyInertia: 0.8
   groundInertia: 0.6
+  swimInertia: 0.9
+  swimGravityFactor: 0.3
   gravityVectorInterpolationK: 0.12
+  playerState: 0
 --- !u!1 &5794810333629454655
 GameObject:
   m_ObjectHideFlags: 0
