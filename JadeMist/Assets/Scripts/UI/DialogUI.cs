@@ -30,8 +30,7 @@ public class DialogUI : MonoBehaviour
     {
         skipButton.onClick.AddListener(() =>
         {
-            Debug.Log($"DialogUI Scrollbar Value = {scrollbar.value}");
-            // skipLine = true;
+            skipLine = true;
         });
     }
 
@@ -131,7 +130,6 @@ public class DialogUI : MonoBehaviour
         ).ToList();
 
         var setOnNextIteration = Mathf.Abs(scrollbar.value * container.rect.height) < 0.01;
-        Debug.Log($"DialogUI Ask: setOnNextIteration = {setOnNextIteration}");
 
         while (answerIdx == -1)
         {

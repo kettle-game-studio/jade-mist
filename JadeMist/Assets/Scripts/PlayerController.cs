@@ -149,7 +149,8 @@ public class PlayerController : MonoBehaviour
     {
         if (!playerUI.DialogRunning) StopDialog();
 
-        var collide = Physics.Raycast(new Ray(playerCamera.position, playerCamera.transform.forward), out var raycastHitInfo, 3f);
+        var ray = new Ray(playerCamera.position, playerCamera.transform.forward);
+        var collide = Physics.Raycast(ray, out var raycastHitInfo, 3f, LayerMask.GetMask("Default"));
 
         if (!collide || raycastHitInfo.collider == null || !raycastHitInfo.collider.gameObject.TryGetComponent<Interactinator>(out var interactinator))
         {
@@ -188,7 +189,7 @@ public class PlayerController : MonoBehaviour
 
         Vector2 moveValue = moveAction.ReadValue<Vector2>();
 
-        if (playerState == PlayerState.Walking)
+        if (playerState == PlayerState.Walking || playerState == PlayerState.Dialog)
         {
             moveValue *= moveSettings.moveSpeed;
             float downSpeed = Vector3.Dot(rigidBody.linearVelocity, DownVector);
