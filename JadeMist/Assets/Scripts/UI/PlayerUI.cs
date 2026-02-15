@@ -15,14 +15,15 @@ public class PlayerUI : MonoBehaviour
 
     void Start()
     {
+        dialogUI.textProvider = textProvider;
         dialogUI.gameObject.SetActive(false);
         areaText.text = "";
     }
 
-    public void StartDialog()
+    public void StartDialog(Dialoginator dialoginator)
     {
         dialogUI.gameObject.SetActive(true);
-        dialogUI.StartDialog();
+        dialogUI.StartDialog(dialoginator);
     }
 
     public bool DialogRunning => dialogUI.IsRunning;

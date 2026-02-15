@@ -1,14 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DialogUI : MonoBehaviour
 {
     public RectTransform container;
     public GameObject textPrefab;
     public GameObject buttonPrefab;
+    public float perLetterLag = 0f;
+    public UnityEngine.UI.Button skipButton;
+    public Scrollbar scrollbar;
+
+    [NonSerialized] public TextProvider textProvider;
 
     public bool IsRunning
     {
@@ -17,77 +24,131 @@ public class DialogUI : MonoBehaviour
     }
 
     int answerIdx;
+    bool skipLine = false;
 
-    public void StartDialog()
+    void Start()
     {
-        IsRunning = true;
-        StartCoroutine(DialogCoroutine());
+        skipButton.onClick.AddListener(() =>
+        {
+            Debug.Log($"DialogUI Scrollbar Value = {scrollbar.value}");
+            // skipLine = true;
+        });
     }
 
-    IEnumerator DialogCoroutine()
+    public void StartDialog(Dialoginator dialoginator)
     {
-        ISay("съешь же ещё этих мягких французских булок, да выпей чаю.");
-        ISay("СЪЕШЬ ЖЕ ЕЩЁ ЭТИХ МЯГКИХ ФРАНЦУЗСКИХ БУЛОК, ДА ВЫПЕЙ ЧАЮ.");
-        ISay("There");
-        ISay("General");
+        IsRunning = true;
+        StartCoroutine(DialogCoroutine(dialoginator));
+    }
 
-        yield return Ask(new[] { "Kenoby?", "Windu?", "Гривус?" });
+    IEnumerator DialogCoroutine(Dialoginator dialoginator)
+    {
+        var dialog = dialoginator.StartDialog(() => answerIdx);
+        foreach (var d in dialog)
+        {
+            switch (d)
+            {
+                case Line line:
+                    yield return ISay(line.textId);
+                    break;
 
-        var answers = new[] {
-            "Классический вариант, правильно",
-            "Ну хотя бы ты выбрал джедая, но он генерал только в легендах",
-            "Чисто технически ты прав, но это всё равно довольно странно",
-        };
-        ISay(answers[answerIdx]);
-
-        yield return Ask(new[] { "Чао-какао!" });
+                case Question question:
+                    yield return Ask(question);
+                    break;
+            }
+        }
 
         StopDialog();
     }
 
     void StopDialog()
     {
-
         IsRunning = false;
         for (var i = 0; i < container.gameObject.transform.childCount; i++)
             Destroy(container.gameObject.transform.GetChild(i).gameObject);
         gameObject.SetActive(false);
     }
 
-    void ISay(string text)
+    IEnumerator ISay(string textId)
     {
-        var instance = Instantiate(textPrefab, container);
-        var textComponent = instance.GetComponent<DialogTextComponent>();
-        textComponent.SetText(text);
+        var prefix = "";
+        return Say(textId, prefix);
     }
 
-    void YouSay(string text)
+    IEnumerator YouSay(string textId)
     {
-        var instance = Instantiate(textPrefab, container);
-        var textComponent = instance.GetComponent<DialogTextComponent>();
-        textComponent.SetText($"<color=#FF0>{text}");
+        var prefix = "<color=#FF0>";
+        return Say(textId, prefix);
     }
 
-    IEnumerator Ask(string[] text)
+    IEnumerator Say(string textId, string prefix, bool wait = true)
+    {
+
+        var instance = Instantiate(textPrefab, container);
+        var textComponent = instance.GetComponent<DialogTextComponent>();
+
+        var text = $"{prefix}{textProvider.GetText(textId)}";
+        var setOnNextIteration = false;
+        for (var i = prefix.Length + 1; i < text.Length + 1; i++)
+        {
+            if (skipLine)
+            {
+                textComponent.SetText(text);
+                yield return new WaitForSeconds(perLetterLag);
+                skipLine = false;
+                yield break;
+            }
+
+            textComponent.SetText(text[..i]);
+            var f = setOnNextIteration;
+
+            setOnNextIteration = Mathf.Abs(scrollbar.value * container.rect.height) < 0.01;
+
+            if (f)
+            {
+                scrollbar.value = 0;
+            }
+
+            if (wait)
+                yield return new WaitForSeconds(perLetterLag);
+        }
+    }
+
+    IEnumerator Ask(Question question)
     {
         answerIdx = -1;
 
-        var buttons = text.Select((t, i) =>
+        var scrollbarValue = scrollbar.value;
+
+        var buttons = question.shortAnswerIds.Select((t, i) =>
         {
             var instance = Instantiate(buttonPrefab, container);
             var button = instance.GetComponent<DialogButtonComponent>();
-            button.SetText($"{i + 1}. {t}");
+            button.SetText($"{i + 1}. {textProvider.GetText(t)}");
             button.AddButtonClickEvent(() => { answerIdx = i; });
             return button;
         }
         ).ToList();
 
+        var setOnNextIteration = Mathf.Abs(scrollbar.value * container.rect.height) < 0.01;
+        Debug.Log($"DialogUI Ask: setOnNextIteration = {setOnNextIteration}");
+
         while (answerIdx == -1)
+        {
             yield return null;
+            var f = setOnNextIteration;
+
+            setOnNextIteration = Mathf.Abs(scrollbar.value * container.rect.height) < 0.01;
+
+            if (f)
+            {
+                scrollbar.value = 0;
+            }
+        }
 
         foreach (var b in buttons)
             b.Kill();
 
-        YouSay(text[answerIdx]);
+        yield return YouSay((question.fullAnswerIds ?? question.shortAnswerIds)[answerIdx]);
     }
 }

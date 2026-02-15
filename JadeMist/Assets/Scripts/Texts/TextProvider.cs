@@ -20,7 +20,7 @@ public class TextProvider : MonoBehaviour
         }
 
         Debug.LogError($"Unknown text id '{id}'");
-        return "Undefined text";
+        return $"Undefined text ({id})";
     }
 
     void Start()

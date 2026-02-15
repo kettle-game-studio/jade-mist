@@ -261,14 +261,14 @@ public class PlayerController : MonoBehaviour
         playerUI.DisplayAreaName(areaId);
     }
 
-    public void StartDialog()
+    public void StartDialog(Dialoginator dialoginator)
     {
         if (playerState != PlayerState.Walking) return;
 
         playerInputMap.Disable();
         playerState = PlayerState.Dialog;
         Cursor.lockState = CursorLockMode.Confined;
-        playerUI.StartDialog();
+        playerUI.StartDialog(dialoginator);
     }
 
     public void StopDialog()

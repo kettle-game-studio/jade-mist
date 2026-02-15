@@ -48,7 +48,7 @@ public class ControlPanel : MonoBehaviour, Interactinator
                 else if (ch == '0')
                     array.Add(0);
                 else
-                    Debug.Log($"Unexpected value in correctStrings: '{ch}'");
+                    Debug.LogError($"Unexpected value in correctStrings: '{ch}'");
             }
             correct.Add(array);
         }
