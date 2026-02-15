@@ -108,22 +108,30 @@ public class PlayerController : MonoBehaviour
     Vector3 ForwardVector => transform.rotation * Vector3.forward;
     Vector3 RightVector => transform.rotation * Vector3.right;
     float JumpVelocity => Mathf.Sqrt(2 * baseGravity.magnitude * jumpHeight);
+    InputActionMap playerInputMap;
+
+    enum PlayerState
+    {
+        Walking,
+        Dialog,
+    }
+    PlayerState playerState = PlayerState.Walking;
 
     void Start()
     {
-        // Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
         rigidBody = GetComponent<Rigidbody>();
         gravity = new GravitySettings((Vector3) => baseGravity, updateGravityPeriod, gravityCurve);
         verticalLookAngle = 0;
         moveSettings = walkSettings;
 
-        InputActionMap playerMap = actions.FindActionMap("Player");
-        playerMap.Enable();
-        lookAction = playerMap.FindAction("Look");
-        moveAction = playerMap.FindAction("Move");
-        jumpAction = playerMap.FindAction("Jump");
-        sprintAction = playerMap.FindAction("Sprint");
-        interactAction = playerMap.FindAction("Interact");
+        playerInputMap = actions.FindActionMap("Player");
+        playerInputMap.Enable();
+        lookAction = playerInputMap.FindAction("Look");
+        moveAction = playerInputMap.FindAction("Move");
+        jumpAction = playerInputMap.FindAction("Jump");
+        sprintAction = playerInputMap.FindAction("Sprint");
+        interactAction = playerInputMap.FindAction("Interact");
 
         playerCamera.gameObject.SetActive(true);
         playerUI.gameObject.SetActive(true);
@@ -131,7 +139,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        return;
+        if (!playerUI.DialogRunning) StopDialog();
 
         var collide = Physics.Raycast(new Ray(playerCamera.position, playerCamera.transform.forward), out var raycastHitInfo, 3f);
 
@@ -163,8 +171,6 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        return;
-
         moveSettings = sprintAction.IsPressed() ? runSettings : walkSettings;
         gravity.Reset(transform.position);
         transform.rotation = ToGravityRotationWithVelocity() * transform.rotation;
@@ -175,7 +181,6 @@ public class PlayerController : MonoBehaviour
 
         float inertia = canJump ? groundInertia : flyInertia;
         if (canJump)
-
             if (jumpAction.IsPressed() && canJump)
                 downSpeed = -JumpVelocity;
 
@@ -254,5 +259,24 @@ public class PlayerController : MonoBehaviour
     public void EnterArea(string areaId)
     {
         playerUI.DisplayAreaName(areaId);
+    }
+
+    public void StartDialog()
+    {
+        if (playerState != PlayerState.Walking) return;
+
+        playerInputMap.Disable();
+        playerState = PlayerState.Dialog;
+        Cursor.lockState = CursorLockMode.Confined;
+        playerUI.StartDialog();
+    }
+
+    public void StopDialog()
+    {
+        if (playerState != PlayerState.Dialog) return;
+
+        playerInputMap.Enable();
+        playerState = PlayerState.Walking;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 }

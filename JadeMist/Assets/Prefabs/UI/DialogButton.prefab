@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4605115631631070368}
   - component: {fileID: 8693017313185463510}
   - component: {fileID: 2949106023029073668}
+  - component: {fileID: 7652581273973893686}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -98,11 +99,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0.6509434, g: 0.06448024, b: 0.06448024, a: 1}
+    m_HighlightedColor: {r: 0.9245283, g: 0.5238474, b: 0.21368816, a: 1}
+    m_PressedColor: {r: 0.9811321, g: 0.041651815, b: 0.041651815, a: 1}
+    m_SelectedColor: {r: 0.7169812, g: 0.27210724, b: 0.010145942, a: 1}
+    m_DisabledColor: {r: 0.3679245, g: 0.28288534, b: 0.28288534, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -117,10 +118,36 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 8693017313185463510}
+  m_TargetGraphic: {fileID: 4443520181597261620}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7652581273973893686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054310758237800302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 1
+  m_ReverseArrangement: 0
 --- !u!1 &7305565057520215340
 GameObject:
   m_ObjectHideFlags: 0
@@ -131,7 +158,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8670980635248994513}
   - component: {fileID: 2015437844130780828}
-  - component: {fileID: 3088635595489686559}
+  - component: {fileID: 7710612822875869386}
   m_Layer: 5
   m_Name: DialogButton
   m_TagString: Untagged
@@ -185,7 +212,7 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &3088635595489686559
+--- !u!114 &7710612822875869386
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -194,10 +221,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7305565057520215340}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f23da3b6c1243af2bbb5765df8e5d59, type: 3}
+  m_Script: {fileID: 11500000, guid: ea91e213ef47a9c65985ab11d75297a9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogTextComponent
-  text: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::DialogButtonComponent
+  text: {fileID: 4443520181597261620}
+  button: {fileID: 2949106023029073668}
 --- !u!1 &7903941637361036198
 GameObject:
   m_ObjectHideFlags: 0
@@ -231,7 +259,7 @@ RectTransform:
   m_Father: {fileID: 7052841614483610344}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -265,8 +293,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Button
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b06248df1670f119fadc4b7e4a82b944, type: 2}
+  m_sharedMaterial: {fileID: -1997971204993932862, guid: b06248df1670f119fadc4b7e4a82b944, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -290,8 +318,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 36
+  m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

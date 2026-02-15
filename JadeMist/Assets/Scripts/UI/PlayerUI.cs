@@ -15,8 +15,17 @@ public class PlayerUI : MonoBehaviour
 
     void Start()
     {
+        dialogUI.gameObject.SetActive(false);
         areaText.text = "";
     }
+
+    public void StartDialog()
+    {
+        dialogUI.gameObject.SetActive(true);
+        dialogUI.StartDialog();
+    }
+
+    public bool DialogRunning => dialogUI.IsRunning;
 
     public void LookingAtActivatable(bool ok)
     {

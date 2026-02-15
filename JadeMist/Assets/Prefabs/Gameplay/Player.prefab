@@ -143,7 +143,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 10, y: 0}
+  m_AnchoredPosition: {x: 10, y: 0.0008481294}
   m_SizeDelta: {x: -20, y: 500}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &2981087463738509734
@@ -197,6 +197,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogUI
   container: {fileID: 2076925483889501600}
   textPrefab: {fileID: 5961632095991338235, guid: d1c53d1cd81e63e889d9d7a16ce89713, type: 3}
+  buttonPrefab: {fileID: 7305565057520215340, guid: 92c1ba09f288842caa22d26bab94e5b6, type: 3}
 --- !u!1 &3813140117937753472
 GameObject:
   m_ObjectHideFlags: 0
@@ -470,7 +471,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1121875345801156584}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.9999921
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -868,12 +869,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -912,7 +913,7 @@ MonoBehaviour:
   areaText: {fileID: 6673650946789596286}
   areaAnnouncementTime: 2
   textProvider: {fileID: 4592626405080082464}
-  dialogUI: {fileID: 0}
+  dialogUI: {fileID: 994257015264331044}
 --- !u!114 &4592626405080082464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -964,8 +965,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -260, y: 0}
-  m_SizeDelta: {x: 500, y: -20}
+  m_AnchoredPosition: {x: -390.5, y: 0}
+  m_SizeDelta: {x: 761, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8282836734809125869
 CanvasRenderer:
