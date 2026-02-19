@@ -120,7 +120,6 @@ public class PlayerController : MonoBehaviour
     {
         Walking,
         Dialog,
-        Swimming,
     }
     [SerializeField]
     PlayerState playerState = PlayerState.Walking;
@@ -180,16 +179,25 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (playerState == PlayerState.Walking || playerState == PlayerState.Swimming)
-            playerState = waterSensor.InWater ? PlayerState.Swimming : PlayerState.Walking;
-
         moveSettings = sprintAction.IsPressed() ? runSettings : walkSettings;
         gravity.Reset(transform.position);
         transform.rotation = ToGravityRotationWithVelocity() * transform.rotation;
 
         Vector2 moveValue = moveAction.ReadValue<Vector2>();
 
-        if (playerState == PlayerState.Walking || playerState == PlayerState.Dialog)
+        if (waterSensor.InWater)
+        {
+            Vector3 moveVelocity = (
+                moveValue.y * playerCamera.transform.forward +
+                moveValue.x * RightVector +
+                (jumpAction.IsPressed() ? -DownVector : Vector3.zero)
+            ).normalized * moveSettings.swimSpeed;
+
+            rigidBody.linearVelocity =
+                gravity.Value * Time.deltaTime * swimGravityFactor +
+                Vector3.Lerp(moveVelocity, rigidBody.linearVelocity, swimInertia);
+        }
+        else
         {
             moveValue *= moveSettings.moveSpeed;
             float downSpeed = Vector3.Dot(rigidBody.linearVelocity, DownVector);
@@ -209,18 +217,6 @@ public class PlayerController : MonoBehaviour
             if (!canJump)
                 rigidBody.linearVelocity += gravity.Value * Time.deltaTime;
 
-        }
-        if (playerState == PlayerState.Swimming)
-        {
-            Vector3 moveVelocity = (
-                moveValue.y * playerCamera.transform.forward +
-                moveValue.x * RightVector +
-                (jumpAction.IsPressed() ? -DownVector : Vector3.zero)
-            ).normalized * moveSettings.swimSpeed;
-
-            rigidBody.linearVelocity =
-                gravity.Value * Time.deltaTime * swimGravityFactor +
-                Vector3.Lerp(moveVelocity, rigidBody.linearVelocity, swimInertia);
         }
         canJump = false;
     }

@@ -9,8 +9,7 @@ public class CollisionReplaceGravity : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        // collision.GetContacts()
-        if (collision.body.TryGetComponent<PlayerController>(out var player))
+        if (collision.body != null && collision.body.TryGetComponent<PlayerController>(out var player))
         {
             player.gravity.UpdateDefaultGravity(gravityCallback);
         }
