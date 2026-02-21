@@ -108,12 +108,13 @@ public class PlayerController : MonoBehaviour
     InputAction sprintAction;
     InputAction interactAction;
     float verticalLookAngle;
-    bool canJump = false;
+    ContactPoint? jumpContact = null;
 
     Vector3 DownVector => transform.rotation * Vector3.down;
     Vector3 ForwardVector => transform.rotation * Vector3.forward;
     Vector3 RightVector => transform.rotation * Vector3.right;
     float JumpVelocity => Mathf.Sqrt(2 * baseGravity.magnitude * jumpHeight);
+    bool CanJump => jumpContact != null;
     InputActionMap playerInputMap;
 
     enum PlayerState
@@ -204,21 +205,25 @@ public class PlayerController : MonoBehaviour
             float forwardSpeed = Vector3.Dot(rigidBody.linearVelocity, ForwardVector);
             float rightSpeed = Vector3.Dot(rigidBody.linearVelocity, RightVector);
 
-            float inertia = canJump ? groundInertia : flyInertia;
-            if (canJump)
-                if (jumpAction.IsPressed() && canJump)
+            float inertia = CanJump ? groundInertia : flyInertia;
+            if (CanJump)
+                if (jumpAction.IsPressed() && CanJump)
+                {
                     downSpeed = -JumpVelocity;
+                    if (jumpContact.Value.otherCollider.TryGetComponent<Rigidbody>(out var otherBody))
+                        otherBody.AddForceAtPosition(DownVector * JumpVelocity * rigidBody.mass, jumpContact.Value.point, ForceMode.Impulse);
+                }
 
             rigidBody.linearVelocity =
                 DownVector * downSpeed +
                 ForwardVector * Mathf.Lerp(moveValue.y, forwardSpeed, inertia) +
                 RightVector * Mathf.Lerp(moveValue.x, rightSpeed, inertia);
 
-            if (!canJump)
+            if (!CanJump)
                 rigidBody.linearVelocity += gravity.Value * Time.deltaTime;
 
         }
-        canJump = false;
+        jumpContact = null;
     }
 
 
@@ -227,7 +232,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 normalizedGravity = gravity.Value.normalized;
         Vector3 velocityRotationAxis = Vector3.Cross(rigidBody.linearVelocity, normalizedGravity);
-        float velocityRotation = canJump ? moveSettings.groundVelocityRotation : moveSettings.flyVelocityRotation;
+        float velocityRotation = CanJump ? moveSettings.groundVelocityRotation : moveSettings.flyVelocityRotation;
         Vector3 targetVector = Quaternion.AngleAxis(velocityRotationAxis.magnitude * velocityRotation / moveSettings.moveSpeed, velocityRotationAxis) * normalizedGravity;
         targetVector = Vector3.Lerp(lastTarget, targetVector, gravityVectorInterpolationK).normalized;
         lastTarget = targetVector;
@@ -240,7 +245,7 @@ public class PlayerController : MonoBehaviour
     {
         foreach (var contact in collision.contacts)
             if (Vector3.Dot(contact.normal, -gravity.Value.normalized) > Mathf.Cos(jumpAngle * Mathf.Deg2Rad))
-                canJump = true;
+                jumpContact = contact;
     }
 
     void OnDrawGizmos()
