@@ -12,9 +12,7 @@ public class CameraJoint : MonoBehaviour
 
     void Start()
     {
-        lastParentPosition = transform.parent.position;
-        lastCameraPosition = transform.position;
-        localTargetPosition = transform.localPosition;
+        Reset();
     }
 
     void FixedUpdate()
@@ -34,6 +32,13 @@ public class CameraJoint : MonoBehaviour
 
         lastParentPosition = parentPosition;
         lastCameraPosition = cameraPosition;
+    }
+
+    public void Reset()
+    {
+        lastParentPosition = transform.parent.position;
+        lastCameraPosition = transform.position;
+        localTargetPosition = transform.localPosition;
     }
 
     // void Update()

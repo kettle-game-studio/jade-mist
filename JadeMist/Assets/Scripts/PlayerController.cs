@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -99,6 +100,8 @@ public class PlayerController : MonoBehaviour
     [Range(0, 1)]
     public float gravityVectorInterpolationK = 0.9f;
 
+    public AnimationCurve killScreenCurve;
+    public float killTime = 0.5f;
 
     MoveSettings moveSettings;
     Rigidbody rigidBody;
@@ -169,7 +172,7 @@ public class PlayerController : MonoBehaviour
 
         var from = respawnPoint == null ? Vector3.zero : respawnPoint.transform.position;
         if (Vector3.Distance(from, transform.position) > deathDistance)
-            Die();
+            Die(transform.position);
 
         Vector2 lookValue = lookAction.ReadValue<Vector2>();
         lookValue = lookValue * mouseSpeed;
@@ -274,17 +277,33 @@ public class PlayerController : MonoBehaviour
         respawnPoint = newRespawnpoint;
     }
 
-    public void Die()
+    IEnumerator DieCoroutine()
     {
+        playerInputMap.Disable();
+        for (float time = 0; time <= killTime; time += Time.deltaTime)
+        {
+            float value = killScreenCurve.Evaluate(time / killTime);
+            Shader.SetGlobalFloat("_ParallaxFogKillFactor", Math.Clamp(value, 0, 1));
+            yield return null;
+        }
+        Shader.SetGlobalFloat("_ParallaxFogKillFactor", 0);
+
         if (respawnPoint != null)
             transform.SetPositionAndRotation(respawnPoint.transform.position, respawnPoint.transform.rotation);
         else
             transform.position = Vector3.zero;
 
-
+        playerInputMap.Enable();
         rigidBody.linearVelocity = Vector3.zero;
         lastTarget = baseGravity.normalized;
         gravity.UpdateDefaultGravity(_ => baseGravity, true);
+        playerCamera.GetComponent<CameraJoint>()?.Reset(); // TODO: get CameraJoint
+    }
+
+    public void Die(Vector3 point)
+    {
+        Shader.SetGlobalVector("_ParallaxFogKillPoint", point);
+        StartCoroutine(DieCoroutine());
     }
 
     public void EnterArea(string areaId)

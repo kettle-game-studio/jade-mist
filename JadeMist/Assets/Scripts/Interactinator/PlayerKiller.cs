@@ -8,14 +8,6 @@ public class PlayerKiller : MonoBehaviour, Interactinator
 {
     public void Interact(PlayerController player, RaycastHit raycastHitInfo)
     {
-        player.Die();
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.body.gameObject.TryGetComponent<PlayerController>(out var player))
-        {
-            player.Die();
-        }
+        player.Die(player.transform.position);
     }
 }
